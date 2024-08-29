@@ -2,4 +2,16 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="dirty_white">#ECECCC</color>
+    <color name="green_mindaro">#DDEC86</color>
+    <color name="yellow_green">#BFDF86</color>
+    <color name="android_green">#96c648</color>
+    <color name="olive_drab">#649419</color>
+    <color name="metallic_green">#356305</color>
+    <color name="black_chocolate">#161b0a</color>
+    <color name="pineapple">#4e4714</color>
+    <color name="up_maroon">#791209</color>
+    <color name="carnelian">#b62417</color>
+    <color name="cinnabar">#db4838</color>
+    <color name="pastel_pink">#daa39b</color>
 </resources>
