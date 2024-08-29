@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menuHome"
+        android:icon="@drawable/round_home"
+        android:title="Home" />
+    <item
+        android:id="@+id/menuJob"
+        android:icon="@drawable/round_work"
+        android:title="Job List" />
+    <item
+        android:id="@+id/menuSchedule"
+        android:icon="@drawable/round_schedule"
+        android:title="Schedule" />
+    <item
+        android:id="@+id/menuRoom"
+        android:icon="@drawable/round_meeting_room"
+        android:title="Room" />
+    <item
+        android:id="@+id/menuSettings"
+        android:icon="@drawable/round_settings"
+        android:title="Settings" />
+</menu>
