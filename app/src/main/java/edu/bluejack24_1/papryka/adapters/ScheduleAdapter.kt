@@ -23,6 +23,7 @@ class ScheduleAdapter(private val scheduleList: List<Schedule>) : RecyclerView.A
         RecyclerView.ViewHolder(binding.root) {
         fun bind(schedule: Schedule) {
             binding.schedule = schedule
+            binding.executePendingBindings()
         }
     }
 

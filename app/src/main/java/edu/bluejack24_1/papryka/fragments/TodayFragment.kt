@@ -10,6 +10,9 @@ import edu.bluejack24_1.papryka.R
 import edu.bluejack24_1.papryka.adapters.ScheduleAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentTodayBinding
 import edu.bluejack24_1.papryka.models.Schedule
+import java.sql.Time
+import java.time.DayOfWeek
+import java.time.LocalDate
 
 class TodayFragment : Fragment() {
 
@@ -30,13 +33,22 @@ class TodayFragment : Fragment() {
 
         vBinding = FragmentTodayBinding.inflate(inflater, container, false)
 
-        val scheduleAdapter = ScheduleAdapter(schedules)
+        val scheduleAdapter = ScheduleAdapter(getToday(schedules))
 
         vBinding.rvToday.adapter = scheduleAdapter
         vBinding.rvToday.layoutManager = GridLayoutManager(context, 1)
         vBinding.rvToday.setHasFixedSize(true)
 
         return vBinding.root
+    }
+
+    private fun getToday(schedules: List<Schedule>): List<Schedule> {
+        val currentDate = LocalDate.now()
+        val dayOfWeek = currentDate.dayOfWeek.value
+        val todaySchedules = schedules.filter {
+            it.day == dayOfWeek
+        }
+        return todaySchedules
     }
 
     companion object {

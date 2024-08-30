@@ -25,4 +25,8 @@
         <item name="android:padding">4dp</item>
         <item name="colorAccent">@color/green_mindaro</item>
     </style>
+
+    <style name="TextAppearance.Headline1" parent="Widget.MaterialComponents.TextView">
+        <item name="fontFamily">@font/gochi_hand</item>
+    </style>
 </resources>

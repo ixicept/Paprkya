@@ -14,6 +14,7 @@ import edu.bluejack24_1.papryka.adapters.HomePagerAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentHomeBinding
 import edu.bluejack24_1.papryka.models.Schedule
 import edu.bluejack24_1.papryka.utils.NetworkUtils
+import edu.bluejack24_1.papryka.utils.getShiftNumber
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,7 +35,8 @@ class HomeFragment : Fragment() {
         tabLayout = vBinding.tabLayout
         viewPager = vBinding.viewPager
 
-        val schedules = seedData()
+        var schedules = seedData()
+        schedules = orderData(schedules)
 
         viewPager.adapter = HomePagerAdapter(requireActivity(), schedules)
 
@@ -55,14 +57,21 @@ class HomeFragment : Fragment() {
         val schedules = arrayListOf<Schedule>()
 
         val dummyData = listOf(
-            Schedule("Algorithm & Programming", 1, 1.0F, "628", "Teaching"),
-            Schedule("Deep Learning", 1, 4.0F, "710", "Teaching"),
-            Schedule("Object Oriented Programming", 1, 6.0F, "614", "Teaching"),
+            Schedule("Object Oriented Programming", 1, 6.0F, "17:20 - 19:00", "614", "Teaching"),
+            Schedule("Algorithm & Programming", 1, 1.0F, "07:20 - 09:00", "628", "Teaching"),
+            Schedule("Deep Learning", 1, 4.0F, "13:20 - 15:00", "710", "Teaching"),
+            Schedule("Object Oriented Programming", 5, 6.0F, "17:20 - 19:00", "614", "Teaching"),
         )
 
         schedules.addAll(dummyData)
 
         return schedules
+    }
+
+    private fun orderData(schedules: List<Schedule>): List<Schedule> {
+        return schedules.sortedBy {
+            getShiftNumber(it.time)
+        }
     }
 
     private fun fetchUserInformation() {
@@ -75,8 +84,7 @@ class HomeFragment : Fragment() {
                     val response = NetworkUtils.apiService.getUserInfo("Bearer $accessToken")
                     withContext(Dispatchers.Main) {
                         val initial = response.Username
-                        println("User initial: $initial")
-                        // Use `initial` as needed
+                        vBinding.tvInitial.text = initial.toString()
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {

@@ -17,6 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:fontFamily="@font/gochi_hand"
+        style="@style/TextAppearance.Headline1"
         android:text="Papryka"
         android:textAlignment="center"
         android:textColor="@color/black"

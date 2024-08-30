@@ -15,7 +15,7 @@ class HomePagerAdapter(fa: FragmentActivity, private val schedules: List<Schedul
     override fun createFragment(position: Int): Fragment {
         return when (position) {
             0 -> TodayFragment.newInstance(schedules)
-            1 -> ThisWeekFragment()
+            1 -> ThisWeekFragment.newInstance(schedules)
 
             else -> TodayFragment()
 
