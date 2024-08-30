@@ -11,6 +11,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import edu.bluejack24_1.papryka.R
 import edu.bluejack24_1.papryka.adapters.HomePagerAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentHomeBinding
+import edu.bluejack24_1.papryka.models.Schedule
 
 class HomeFragment : Fragment() {
 
@@ -27,7 +28,9 @@ class HomeFragment : Fragment() {
         tabLayout = vBinding.tabLayout
         viewPager = vBinding.viewPager
 
-        viewPager.adapter = HomePagerAdapter(requireActivity())
+        val schedules = seedData()
+
+        viewPager.adapter = HomePagerAdapter(requireActivity(), schedules)
 
         TabLayoutMediator(tabLayout, viewPager) {
             tab, position ->
@@ -38,6 +41,20 @@ class HomeFragment : Fragment() {
         }.attach()
 
         return vBinding.root
+    }
+
+    private fun seedData(): List<Schedule> {
+        val schedules = arrayListOf<Schedule>()
+
+        val dummyData = listOf(
+            Schedule("Algorithm & Programming", 1, 1.0F, "628", "Teaching"),
+            Schedule("Deep Learning", 1, 4.0F, "710", "Teaching"),
+            Schedule("Object Oriented Programming", 1, 6.0F, "614", "Teaching"),
+        )
+
+        schedules.addAll(dummyData)
+
+        return schedules
     }
 
 }

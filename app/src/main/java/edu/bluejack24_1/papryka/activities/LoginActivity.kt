@@ -26,19 +26,20 @@ class LoginActivity : AppCompatActivity() {
             val password = binding.etPassword.text.toString()
             
             if (initial.isNotEmpty() && password.isNotEmpty()) {
-                // TODO: Messier account
-//                if (initial == "tes@gmail.com" && password == "pass") {
-//                    val intentToHome = Intent(this, MainActivity::class.java)
-//                    startActivity(intentToHome)
-//                    finish()
-//                } else {
-//                    Toast.makeText(this, "Wrong credentials", Toast.LENGTH_SHORT).show()
-//                }
+
+                // Initial Validation
+                if (initial.indexOf('-', 0) != 4) {
+                    Toast.makeText(this@LoginActivity, "Initial is not valid", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                // TODO: Messier account DONE
                 val loginRequest = LoginRequest(initial, password)
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
                         val response = NetworkUtils.apiService.login(loginRequest)
                         withContext(Dispatchers.Main) {
+                            Toast.makeText(this@LoginActivity, "Login successful", Toast.LENGTH_SHORT).show()
                             val intentToHome = Intent(this@LoginActivity, MainActivity::class.java)
                             startActivity(intentToHome)
                             finish()
