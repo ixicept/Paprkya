@@ -24,6 +24,8 @@ class HomeFragment : Fragment() {
     private lateinit var vBinding: FragmentHomeBinding
     private lateinit var tabLayout: TabLayout;
     private lateinit var viewPager: ViewPager2;
+    private lateinit var homePagerAdapter: HomePagerAdapter
+    private val schedules = mutableListOf<Schedule>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,9 +36,8 @@ class HomeFragment : Fragment() {
         tabLayout = vBinding.tabLayout
         viewPager = vBinding.viewPager
 
-        val schedules = seedData()
-
-        viewPager.adapter = HomePagerAdapter(requireActivity(), schedules)
+        homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
+        viewPager.adapter = homePagerAdapter
 
         TabLayoutMediator(tabLayout, viewPager) {
             tab, position ->
@@ -51,19 +52,25 @@ class HomeFragment : Fragment() {
         return vBinding.root
     }
 
-    private fun seedData(): List<Schedule> {
-        val schedules = arrayListOf<Schedule>()
-
-        val dummyData = listOf(
-            Schedule("Algorithm & Programming", 1, 1.0F, "628", "Teaching"),
-            Schedule("Deep Learning", 1, 4.0F, "710", "Teaching"),
-            Schedule("Object Oriented Programming", 1, 6.0F, "614", "Teaching"),
-        )
-
-        schedules.addAll(dummyData)
-
-        return schedules
-    }
+//    private fun seedData(): List<Schedule> {
+//        val schedules = arrayListOf<Schedule>()
+//
+////        val dummyData = listOf(
+////            Schedule("Algorithm & Programming", 1, 1.0F, "628", "Teaching"),
+////            Schedule("Deep Learning", 1, 4.0F, "710", "Teaching"),
+////            Schedule("Object Oriented Programming", 1, 6.0F, "614", "Teaching"),
+////        )
+//
+//        val dummyData = listOf(
+//            Schedule(1, "Algorithm & Programming", "628", "12:00-14:00"),
+//            Schedule(2, "Deep Learning", "710", "14:00-16:00"),
+//        )
+//
+//
+//        schedules.addAll(dummyData)
+//
+//        return schedules
+//    }
 
     private fun fetchUserInformation() {
         val sharedPreferences = requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
@@ -76,7 +83,9 @@ class HomeFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         val initial = response.Username
                         println("User initial: $initial")
-                        // Use `initial` as needed
+                        if (initial != null) {
+                            fetchClassTransaction(initial, accessToken)
+                        }
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
@@ -86,6 +95,29 @@ class HomeFragment : Fragment() {
             }
         } else {
             Toast.makeText(requireContext(), "Access token not found", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun fetchClassTransaction(username: String, accessToken: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = NetworkUtils.apiService.getClassTransactionByAssistantUsername(
+                    "Bearer $accessToken",
+                    username
+                )
+                withContext(Dispatchers.Main) {
+                    println(response)
+                    schedules.clear()
+                    schedules.addAll(response)
+                    homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
+                    viewPager.adapter = homePagerAdapter
+                    homePagerAdapter.notifyDataSetChanged()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Failed to get class transactions", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 }
