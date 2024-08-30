@@ -34,6 +34,7 @@ class ThisWeekFragment : Fragment() {
         vBinding = FragmentThisWeekBinding.inflate(inflater, container, false)
 
         val dayScheduleMap: Map<String, List<Schedule>> = schedules.groupBy { it.Day.toString() }
+        dayScheduleMap.toSortedMap()
 
         val scheduleAdapter = DayOfWeekScheduleAdapter(dayScheduleMap)
 

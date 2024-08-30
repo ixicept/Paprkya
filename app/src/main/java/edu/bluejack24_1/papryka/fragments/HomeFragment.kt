@@ -52,26 +52,6 @@ class HomeFragment : Fragment() {
         return vBinding.root
     }
 
-//    private fun seedData(): List<Schedule> {
-//        val schedules = arrayListOf<Schedule>()
-//
-////        val dummyData = listOf(
-////            Schedule("Algorithm & Programming", 1, 1.0F, "628", "Teaching"),
-////            Schedule("Deep Learning", 1, 4.0F, "710", "Teaching"),
-////            Schedule("Object Oriented Programming", 1, 6.0F, "614", "Teaching"),
-////        )
-//
-//        val dummyData = listOf(
-//            Schedule(1, "Algorithm & Programming", "628", "12:00-14:00"),
-//            Schedule(2, "Deep Learning", "710", "14:00-16:00"),
-//        )
-//
-//
-//        schedules.addAll(dummyData)
-//
-//        return schedules
-//    }
-
     private fun fetchUserInformation() {
         val sharedPreferences = requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
         val accessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
@@ -82,6 +62,7 @@ class HomeFragment : Fragment() {
                     val response = NetworkUtils.apiService.getUserInfo("Bearer $accessToken")
                     withContext(Dispatchers.Main) {
                         val initial = response.Username
+                        vBinding.tvInitial.text = initial
                         println("User initial: $initial")
                         if (initial != null) {
                             fetchClassTransaction(initial, accessToken)

@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import edu.bluejack24_1.papryka.databinding.CardScheduleBinding
 import edu.bluejack24_1.papryka.models.Schedule
+import edu.bluejack24_1.papryka.utils.getShiftNumber
 
 class ScheduleAdapter(private val scheduleList: List<Schedule>) : RecyclerView.Adapter<ScheduleAdapter.ScheduleViewHolder>() {
     interface IOnItemClickCallback {
@@ -39,6 +40,7 @@ class ScheduleAdapter(private val scheduleList: List<Schedule>) : RecyclerView.A
 
     override fun onBindViewHolder(holder: ScheduleViewHolder, position: Int) {
         val schedules = scheduleList[position]
+        schedules.ShiftCode = getShiftNumber(schedules.Shift)
         holder.bind(schedules)
 
         holder.itemView.setOnClickListener {

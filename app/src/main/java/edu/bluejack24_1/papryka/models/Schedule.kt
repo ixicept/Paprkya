@@ -7,7 +7,7 @@ import kotlinx.parcelize.Parcelize
 data class Schedule(
     val Subject: String,
     val Day: Int,
-    val ShiftCode: Float,
+    var ShiftCode: Float,
     val Shift: String,
     val Room: String,
     val Type: String,

@@ -1,14 +1,14 @@
 package edu.bluejack24_1.papryka.utils
 
-fun getShiftNumber(time: String): Int {
+fun getShiftNumber(time: String): Float {
     return when (time) {
-        "07:20 - 09:00" -> 1
-        "09:20 - 11:00" -> 2
-        "11:20 - 13:00" -> 3
-        "13:20 - 15:00" -> 4
-        "15:20 - 17:00" -> 5
-        "17:20 - 19:00" -> 6
-        else -> 0
+        "07:20 - 09:00" -> 1.0F
+        "09:20 - 11:00" -> 2.0F
+        "11:20 - 13:00" -> 3.0F
+        "13:20 - 15:00" -> 4.0F
+        "15:20 - 17:00" -> 5.0F
+        "17:20 - 19:00" -> 6.0F
+        else -> 0.0F
     }
 }
 

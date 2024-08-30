@@ -1,6 +1,7 @@
 package edu.bluejack24_1.papryka.adapters
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,6 +22,12 @@ class DayOfWeekScheduleAdapter(private val scheduleList: Map<String, List<Schedu
         fun bind(day: Int, schedules: List<Schedule>) {
             binding.tvDay.text = getDayFromInt(day)
 
+            if (schedules.isEmpty()) {
+                binding.tvNoSchedule.visibility = View.VISIBLE
+            } else {
+                binding.tvNoSchedule.height = 0
+            }
+
             val scheduleAdapter = ScheduleAdapter(schedules)
             binding.rvSchedule.adapter = scheduleAdapter
             binding.rvSchedule.layoutManager = GridLayoutManager(binding.root.context, 1)
@@ -35,12 +42,11 @@ class DayOfWeekScheduleAdapter(private val scheduleList: Map<String, List<Schedu
     }
 
     override fun getItemCount(): Int {
-        return scheduleList.keys.size
+        return 7
     }
 
     override fun onBindViewHolder(holder: DayOfWeekScheduleViewHolder, position: Int) {
-        val day = scheduleList.keys.elementAt(position)
-        val schedules = scheduleList[day] ?: emptyList()
-        holder.bind(day.toInt(), schedules)
+        val schedules = scheduleList[(position + 1).toString()] ?: emptyList()
+        holder.bind(position + 1, schedules)
     }
 }
