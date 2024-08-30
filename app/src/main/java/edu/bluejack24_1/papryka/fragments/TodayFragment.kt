@@ -46,7 +46,7 @@ class TodayFragment : Fragment() {
         val currentDate = LocalDate.now()
         val dayOfWeek = currentDate.dayOfWeek.value
         val todaySchedules = schedules.filter {
-            it.day == dayOfWeek
+            it.Day == dayOfWeek
         }
         return todaySchedules
     }

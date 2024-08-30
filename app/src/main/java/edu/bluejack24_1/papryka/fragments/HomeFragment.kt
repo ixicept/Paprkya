@@ -70,7 +70,7 @@ class HomeFragment : Fragment() {
 
     private fun orderData(schedules: List<Schedule>): List<Schedule> {
         return schedules.sortedBy {
-            getShiftNumber(it.time)
+            getShiftNumber(it.Shift)
         }
     }
 

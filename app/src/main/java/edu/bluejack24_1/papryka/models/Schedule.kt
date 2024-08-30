@@ -5,10 +5,10 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Schedule(
-    val course: String,
-    val day: Int,
-    val shift: Float?,
-    val time: String,
-    val room: String,
-    val type: String
+    val Subject: String,
+    val Day: Int,
+    val ShiftCode: Float,
+    val Shift: String,
+    val Room: String,
+    val Type: String,
 ): Parcelable
