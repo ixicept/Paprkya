@@ -19,4 +19,10 @@
         <item name="android:textStyle">bold</item>
         <item name="android:fontFamily">@font/ubuntu</item>
     </style>
+
+    <style name="CustomBotNavBar" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="android:fontFamily">@font/ubuntu</item>
+        <item name="android:padding">4dp</item>
+        <item name="colorAccent">@color/green_mindaro</item>
+    </style>
 </resources>

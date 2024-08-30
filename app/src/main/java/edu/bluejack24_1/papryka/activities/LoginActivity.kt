@@ -42,8 +42,12 @@ class LoginActivity : AppCompatActivity() {
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
                         val response = NetworkUtils.apiService.login(loginRequest)
+                        val accessToken = response.access_token
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(this@LoginActivity, "Login successful", Toast.LENGTH_SHORT).show()
+                            val sharedPreferences = getSharedPreferences("AppPreference", MODE_PRIVATE)
+                            sharedPreferences.edit().putString("ACCESS_TOKEN", accessToken).apply()
+
+//                            Toast.makeText(this@LoginActivity, "Login successful", Toast.LENGTH_SHORT).show()
                             val intentToHome = Intent(this@LoginActivity, MainActivity::class.java)
                             startActivity(intentToHome)
                             finish()
@@ -71,9 +75,17 @@ class LoginActivity : AppCompatActivity() {
 
                     override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                         super.onAuthenticationSucceeded(result)
-                        val intentToHome = Intent(this@LoginActivity, MainActivity::class.java)
-                        startActivity(intentToHome)
-                        finish()
+                        val sharedPreferences = getSharedPreferences("AppPreference", MODE_PRIVATE)
+                        val accessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
+                        if (accessToken != null) {
+                            getUserInformation(accessToken)
+                        } else {
+                            Toast.makeText(this@LoginActivity, "Access token not found", Toast.LENGTH_SHORT).show()
+                        }
+
+//                        val intentToHome = Intent(this@LoginActivity, MainActivity::class.java)
+//                        startActivity(intentToHome)
+//                        finish()
                     }
 
                     override fun onAuthenticationFailed() {
@@ -102,6 +114,23 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(this, "No biometric credentials enrolled", Toast.LENGTH_SHORT).show()
                 val intent = Intent(android.provider.Settings.ACTION_SECURITY_SETTINGS)
                 startActivity(intent)
+            }
+        }
+    }
+
+    private fun getUserInformation(accessToken: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = NetworkUtils.apiService.getUserInfo("Bearer $accessToken")
+                withContext(Dispatchers.Main) {
+                    val intentToHome = Intent(this@LoginActivity, MainActivity::class.java)
+                    startActivity(intentToHome)
+                    finish()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@LoginActivity, "Failed to get user information", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

@@ -1,17 +1,23 @@
 package edu.bluejack24_1.papryka.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import edu.bluejack24_1.papryka.R
 import edu.bluejack24_1.papryka.adapters.HomePagerAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentHomeBinding
 import edu.bluejack24_1.papryka.models.Schedule
+import edu.bluejack24_1.papryka.utils.NetworkUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class HomeFragment : Fragment() {
 
@@ -40,6 +46,8 @@ class HomeFragment : Fragment() {
             }
         }.attach()
 
+        fetchUserInformation()
+
         return vBinding.root
     }
 
@@ -57,4 +65,27 @@ class HomeFragment : Fragment() {
         return schedules
     }
 
+    private fun fetchUserInformation() {
+        val sharedPreferences = requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
+        val accessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
+
+        if (accessToken != null) {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val response = NetworkUtils.apiService.getUserInfo("Bearer $accessToken")
+                    withContext(Dispatchers.Main) {
+                        val initial = response.Username
+                        println("User initial: $initial")
+                        // Use `initial` as needed
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), "Failed to get user information", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        } else {
+            Toast.makeText(requireContext(), "Access token not found", Toast.LENGTH_SHORT).show()
+        }
+    }
 }
