@@ -4,9 +4,10 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 @Parcelize
 data class User(
-    val name: String,
-    val username: String,
-    val roles: List<String>,
-    val token: String,
-    val userid: String
+    val UserId: String,
+    val BinusianId: String,
+    val Roles: List<String>,
+    val Name: String,
+    val Username: String,
+    val BinusianNumber: String,
 ): Parcelable
