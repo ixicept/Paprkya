@@ -7,7 +7,7 @@ import edu.bluejack24_1.papryka.fragments.ThisWeekFragment
 import edu.bluejack24_1.papryka.fragments.TodayFragment
 import edu.bluejack24_1.papryka.models.Schedule
 
-class HomePagerAdapter(fa: FragmentActivity, private val schedules: List<Schedule>): FragmentStateAdapter(fa) {
+class HomePagerAdapter(fa: FragmentActivity, private val schedules: MutableList<Schedule>): FragmentStateAdapter(fa) {
     override fun getItemCount(): Int {
         return 2
     }
@@ -20,6 +20,12 @@ class HomePagerAdapter(fa: FragmentActivity, private val schedules: List<Schedul
             else -> TodayFragment()
 
         }
+    }
+
+    fun updateSchedules(newSchedules: List<Schedule>) {
+        schedules.clear()
+        schedules.addAll(newSchedules)
+        notifyDataSetChanged()
     }
 
 }
