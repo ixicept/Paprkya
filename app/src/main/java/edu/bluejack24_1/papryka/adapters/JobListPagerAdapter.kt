@@ -1,0 +1,25 @@
+package edu.bluejack24_1.papryka.adapters
+
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import edu.bluejack24_1.papryka.fragments.CasemakingFragment
+import edu.bluejack24_1.papryka.fragments.CorrectionFragment
+import edu.bluejack24_1.papryka.models.Schedule
+
+class JobListPagerAdapter(fa: FragmentActivity): FragmentStateAdapter(fa) {
+    override fun getItemCount(): Int {
+        return 2
+    }
+
+    override fun createFragment(position: Int): Fragment {
+        return when (position) {
+            0 -> CorrectionFragment()
+            1 -> CasemakingFragment()
+
+            else -> CorrectionFragment()
+
+        }
+    }
+
+}

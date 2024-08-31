@@ -7,7 +7,14 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import edu.bluejack24_1.papryka.R
+import edu.bluejack24_1.papryka.adapters.HomePagerAdapter
+import edu.bluejack24_1.papryka.adapters.JobListPagerAdapter
+import edu.bluejack24_1.papryka.databinding.FragmentHomeBinding
+import edu.bluejack24_1.papryka.databinding.FragmentJobListBinding
 import edu.bluejack24_1.papryka.models.Casemaking
 import edu.bluejack24_1.papryka.utils.NetworkUtils
 import kotlinx.coroutines.CoroutineScope
@@ -17,15 +24,35 @@ import kotlinx.coroutines.withContext
 
 class JobListFragment : Fragment() {
 
+    private lateinit var vBinding: FragmentJobListBinding
+    private lateinit var tabLayout: TabLayout;
+    private lateinit var viewPager: ViewPager2;
+    private lateinit var jobListPagerAdapter: JobListPagerAdapter
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
+        vBinding = FragmentJobListBinding.inflate(inflater, container, false)
+
+        tabLayout = vBinding.tabLayout
+        viewPager = vBinding.viewPager
+
+        jobListPagerAdapter = JobListPagerAdapter(requireActivity())
+        viewPager.adapter = jobListPagerAdapter
+
+        TabLayoutMediator(tabLayout, viewPager) {
+                tab, position ->
+            when (position) {
+                0 -> tab.text = "Correction"
+                1 -> tab.text = "Casemaking"
+            }
+        }.attach()
+
         fetchCasemaking()
         fetchCorrection()
 
-        return inflater.inflate(R.layout.fragment_job_list, container, false)
+        return vBinding.root
     }
 
     private fun fetchCasemaking() {
