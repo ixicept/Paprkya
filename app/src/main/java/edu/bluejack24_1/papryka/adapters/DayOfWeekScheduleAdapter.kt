@@ -3,9 +3,12 @@ package edu.bluejack24_1.papryka.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import edu.bluejack24_1.papryka.R
 import edu.bluejack24_1.papryka.databinding.CardDayOfWeekBinding
+import edu.bluejack24_1.papryka.fragments.TeachingDetailFragment
 import edu.bluejack24_1.papryka.models.DayOfWeekSchedule
 import edu.bluejack24_1.papryka.models.Schedule
 import edu.bluejack24_1.papryka.utils.getDayFromInt
@@ -19,20 +22,22 @@ class DayOfWeekScheduleAdapter(private val scheduleList: Map<String, List<Schedu
     class DayOfWeekScheduleViewHolder(private val binding: CardDayOfWeekBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(day: Int, schedules: List<Schedule>) {
+        fun bind(day: Int, schedules: List<Schedule>, onItemClickCallback: ScheduleAdapter.IOnItemClickCallback) {
             binding.tvDay.text = getDayFromInt(day)
 
             if (schedules.isEmpty()) {
                 binding.tvNoSchedule.visibility = View.VISIBLE
             } else {
-                binding.tvNoSchedule.height = 0
+                binding.tvNoSchedule.visibility = View.GONE
             }
 
             val scheduleAdapter = ScheduleAdapter(schedules)
+            scheduleAdapter.setOnItemClickCallback(onItemClickCallback)
             binding.rvSchedule.adapter = scheduleAdapter
             binding.rvSchedule.layoutManager = GridLayoutManager(binding.root.context, 1)
             binding.rvSchedule.setHasFixedSize(true)
         }
+
     }
 
 
@@ -47,6 +52,17 @@ class DayOfWeekScheduleAdapter(private val scheduleList: Map<String, List<Schedu
 
     override fun onBindViewHolder(holder: DayOfWeekScheduleViewHolder, position: Int) {
         val schedules = scheduleList[(position + 1).toString()] ?: emptyList()
-        holder.bind(position + 1, schedules)
+
+        holder.bind(position + 1, schedules, object : ScheduleAdapter.IOnItemClickCallback {
+            override fun onItemClicked(schedule: Schedule) {
+                (holder.itemView.context as? AppCompatActivity)?.let { activity ->
+                    val detailFragment = TeachingDetailFragment.newInstance(schedule)
+                    activity.supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentContainer, detailFragment)
+                        .addToBackStack(null)
+                        .commit()
+                }
+            }
+        })
     }
 }

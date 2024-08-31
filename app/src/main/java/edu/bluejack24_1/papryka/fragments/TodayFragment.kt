@@ -1,5 +1,6 @@
 package edu.bluejack24_1.papryka.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -38,6 +39,18 @@ class TodayFragment : Fragment() {
         vBinding.rvToday.adapter = scheduleAdapter
         vBinding.rvToday.layoutManager = GridLayoutManager(context, 1)
         vBinding.rvToday.setHasFixedSize(true)
+
+        scheduleAdapter.setOnItemClickCallback(object : ScheduleAdapter.IOnItemClickCallback {
+            override fun onItemClicked(schedule: Schedule) {
+                val detailFragment = TeachingDetailFragment.newInstance(schedule)
+
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragmentContainer, detailFragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
+        })
+
 
         return vBinding.root
     }

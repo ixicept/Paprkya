@@ -36,11 +36,24 @@ class ThisWeekFragment : Fragment() {
         val dayScheduleMap: Map<String, List<Schedule>> = schedules.groupBy { it.Day.toString() }
         dayScheduleMap.toSortedMap()
 
-        val scheduleAdapter = DayOfWeekScheduleAdapter(dayScheduleMap)
+        val dayOfWeekScheduleAdapter = DayOfWeekScheduleAdapter(dayScheduleMap)
 
-        vBinding.rvThisWeek.adapter = scheduleAdapter
+        vBinding.rvThisWeek.adapter = dayOfWeekScheduleAdapter
         vBinding.rvThisWeek.layoutManager = LinearLayoutManager(context)
         vBinding.rvThisWeek.setHasFixedSize(true)
+
+        val scheduleAdapter = ScheduleAdapter(schedules)
+
+        scheduleAdapter.setOnItemClickCallback(object : ScheduleAdapter.IOnItemClickCallback {
+            override fun onItemClicked(schedule: Schedule) {
+                val detailFragment = TeachingDetailFragment.newInstance(schedule)
+
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragmentContainer, detailFragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
+        })
 
         return vBinding.root
     }
