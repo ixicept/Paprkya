@@ -18,6 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 class HomeFragment : Fragment() {
 
@@ -61,39 +62,62 @@ class HomeFragment : Fragment() {
                 try {
                     val response = NetworkUtils.apiService.getUserInfo("Bearer $accessToken")
                     withContext(Dispatchers.Main) {
-                        val initial = response.Username
-                        vBinding.tvInitial.text = initial
-                        println("User initial: $initial")
-                        if (initial != null) {
+                        if (isAdded) {
+                            val initial = response.Username
+                            vBinding.tvInitial.text = initial
+                            println("User initial: $initial")
                             fetchClassTransaction(initial, accessToken)
                         }
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), "Failed to get user information", Toast.LENGTH_SHORT).show()
+                        if (isAdded) {
+                            Toast.makeText(requireContext(), "Failed to get user information", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
         } else {
-            Toast.makeText(requireContext(), "Access token not found", Toast.LENGTH_SHORT).show()
+            if (isAdded) {
+                Toast.makeText(requireContext(), "Access token not found", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
+
     private fun fetchClassTransaction(username: String, accessToken: String) {
         CoroutineScope(Dispatchers.IO).launch {
+            val timeoutDuration = 10_000L
             try {
-                val response = NetworkUtils.apiService.getClassTransactionByAssistantUsername(
-                    "Bearer $accessToken",
-                    username
-                )
-                withContext(Dispatchers.Main) {
-                    println(response)
-                    schedules.clear()
-                    schedules.addAll(response)
-                    homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
-                    viewPager.adapter = homePagerAdapter
-                    homePagerAdapter.notifyDataSetChanged()
+                val response: List<Schedule>? = withTimeoutOrNull(timeoutDuration) {
+                    NetworkUtils.apiService.getClassTransactionByAssistantUsername(
+                        "Bearer $accessToken",
+                        username
+                    )
                 }
+
+                withContext(Dispatchers.Main) {
+                    if (response == null) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Request timed out or failed. Please try again.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else if (response.isEmpty()) {
+                        Toast.makeText(
+                            requireContext(),
+                            "No class transactions found.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        schedules.clear()
+                        schedules.addAll(response)
+                        homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
+                        viewPager.adapter = homePagerAdapter
+                        homePagerAdapter.notifyDataSetChanged()
+                    }
+                }
+
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(requireContext(), "Failed to get class transactions", Toast.LENGTH_SHORT).show()
