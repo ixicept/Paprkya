@@ -53,7 +53,7 @@ object NetworkUtils {
         @GET("Correction/GetCorrectionSchedules")
         suspend fun getCorrectionSchedules(
             @Header("Authorization") token: String,
-            @Query("semesterId") semesterId: String = "be992b30-4b38-4361-8404-25f2d6912754"
+            @Query("semesterId") semesterId: String = "a7ff28f1-bd85-410b-b222-a29c619068fa" //EVEN 2023/2024
         ): List<Correction>
 
         @GET("Schedule/GetJobsAssistant")
