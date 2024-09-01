@@ -5,21 +5,23 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import edu.bluejack24_1.papryka.fragments.CasemakingFragment
 import edu.bluejack24_1.papryka.fragments.CorrectionFragment
-import edu.bluejack24_1.papryka.models.Casemaking
-import edu.bluejack24_1.papryka.models.Correction
+import edu.bluejack24_1.papryka.fragments.GenerationFragment
+import edu.bluejack24_1.papryka.fragments.InitialFragment
+import edu.bluejack24_1.papryka.fragments.PositionFragment
 import edu.bluejack24_1.papryka.models.Schedule
 
-class JobListPagerAdapter(fa: FragmentActivity, private val corrections: MutableList<Correction>, private val casemakings: MutableList<Casemaking>): FragmentStateAdapter(fa) {
+class SchedulePagerAdapter(fa: FragmentActivity): FragmentStateAdapter(fa) {
     override fun getItemCount(): Int {
-        return 2
+        return 3
     }
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> CorrectionFragment.newInstance(corrections)
-            1 -> CasemakingFragment.newInstance(casemakings)
+            0 -> InitialFragment()
+            1 -> GenerationFragment()
+            2 -> PositionFragment()
 
-            else -> CorrectionFragment.newInstance(corrections)
+            else -> InitialFragment()
 
         }
     }

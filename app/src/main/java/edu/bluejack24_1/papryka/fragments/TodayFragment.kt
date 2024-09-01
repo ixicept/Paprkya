@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import edu.bluejack24_1.papryka.R
 import edu.bluejack24_1.papryka.adapters.ScheduleAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentTodayBinding
@@ -37,7 +38,7 @@ class TodayFragment : Fragment() {
         val scheduleAdapter = ScheduleAdapter(getToday(schedules))
 
         vBinding.rvToday.adapter = scheduleAdapter
-        vBinding.rvToday.layoutManager = GridLayoutManager(context, 1)
+        vBinding.rvToday.layoutManager = LinearLayoutManager(context)
         vBinding.rvToday.setHasFixedSize(true)
 
         scheduleAdapter.setOnItemClickCallback(object : ScheduleAdapter.IOnItemClickCallback {

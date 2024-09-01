@@ -16,6 +16,8 @@ import edu.bluejack24_1.papryka.adapters.JobListPagerAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentHomeBinding
 import edu.bluejack24_1.papryka.databinding.FragmentJobListBinding
 import edu.bluejack24_1.papryka.models.Casemaking
+import edu.bluejack24_1.papryka.models.Correction
+import edu.bluejack24_1.papryka.models.Schedule
 import edu.bluejack24_1.papryka.utils.NetworkUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +30,8 @@ class JobListFragment : Fragment() {
     private lateinit var tabLayout: TabLayout;
     private lateinit var viewPager: ViewPager2;
     private lateinit var jobListPagerAdapter: JobListPagerAdapter
+    private val corrections = mutableListOf<Correction>()
+    private val casemakings = mutableListOf<Casemaking>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,7 +42,7 @@ class JobListFragment : Fragment() {
         tabLayout = vBinding.tabLayout
         viewPager = vBinding.viewPager
 
-        jobListPagerAdapter = JobListPagerAdapter(requireActivity())
+        jobListPagerAdapter = JobListPagerAdapter(requireActivity(), corrections, casemakings)
         viewPager.adapter = jobListPagerAdapter
 
         TabLayoutMediator(tabLayout, viewPager) {
@@ -63,6 +67,7 @@ class JobListFragment : Fragment() {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     val casemaking = NetworkUtils.apiService.getJobsAssistant("Bearer $accessToken")
+                    casemakings.addAll(casemaking)
                     withContext(Dispatchers.Main) {
                         proccesCasemaking(casemaking)
                     }
@@ -117,6 +122,7 @@ class JobListFragment : Fragment() {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     val correction = NetworkUtils.apiService.getCorrectionSchedules("Bearer $accessToken")
+                    corrections.addAll(correction)
                     withContext(Dispatchers.Main) {
                         print("Correction: $correction")
                     }
