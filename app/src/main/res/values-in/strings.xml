@@ -1,19 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Papryka</string>
-    <string name="welcome_back">Halo!</string>
+    <string name="welcome_back">Selamat datang kembali!</string>
     <string name="login">Masuk</string>
     <string name="initial">Inisial</string>
-    <string name="password">Password</string>
+    <string name="password">Kata Sandi</string>
     <string name="login_with_biometric">Masuk dengan biometric</string>
-    <string name="schedule">Jadwal</string>
     <string name="schedule">Jadwal</string>
     <string name="back">Kembali</string>
     <string name="date">Tanggal</string>
     <string name="view">Tampilkan</string>
     <string name="initial_hint">INISIAL, dipisahkan ;</string>
-    <string name="not_done">Tidak dilakukan</string>
-    <string name="deadline">Tenggat waktu</string>
-    <string name="waiting_for_approval">Menunggu diterima</string>
-    <string name="approved">Diterima</string>
+    <string name="not_done">" = Tidak dilakukan"</string>
+    <string name="deadline">" = Tenggat waktu"</string>
+    <string name="waiting_for_approval">" = Menunggu diterima"</string>
+    <string name="approved">" = Diterima"</string>
+    <string name="language">Ubah Bahasa</string>
+    <string name="today">Hari ini</string>
+    <string name="this_week">Minggu ini</string>
+    <string name="teaching_detail">Detail Mengajar</string>
+    <string name="job_list">Daftar Kerjaan</string>
+    <string name="legend">Legenda</string>
+    <string name="room_transaction">Transaksi Ruangan</string>
+    <string name="include_unapproved_data">Termasuk data yang tidak diterima</string>
+    <string name="include_onsite_status">Termasuk status onsite</string>
+    <string name="settings">Pengaturan</string>
+    <string name="no_schedule">Kamu tidak ada jadwal di hari ini</string>
+    <string name="by_initial">Inisial</string>
+    <string name="by_generation">Generasi</string>
+    <string name="by_position">Posisi</string>
+    <string name="monday">Senin</string>
+    <string name="tuesday">Selasa</string>
+    <string name="wednesday">Rabu</string>
+    <string name="thursday">Kamis</string>
+    <string name="friday">Jumat</string>
+    <string name="saturday">Sabtu</string>
+    <string name="sunday">Minggu</string>
+    <string name="home">Beranda</string>
+    <string name="room">Ruangan</string>
+    <string name="subject">Mata kuliah:</string>
+    <string name="classroom">Kelas:</string>
+    <string name="teaching_room">Ruangan:</string>
 </resources>

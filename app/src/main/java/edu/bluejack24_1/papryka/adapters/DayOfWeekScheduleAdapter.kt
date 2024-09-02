@@ -23,7 +23,7 @@ class DayOfWeekScheduleAdapter(private val scheduleList: Map<String, List<Schedu
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(day: Int, schedules: List<Schedule>, onItemClickCallback: ScheduleAdapter.IOnItemClickCallback) {
-            binding.tvDay.text = getDayFromInt(day)
+            binding.tvDay.text = getDayFromInt(binding.root.context, day)
 
             if (schedules.isEmpty()) {
                 binding.tvNoSchedule.visibility = View.VISIBLE
@@ -65,4 +65,8 @@ class DayOfWeekScheduleAdapter(private val scheduleList: Map<String, List<Schedu
             }
         })
     }
+
+
+
+
 }

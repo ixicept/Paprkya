@@ -1,5 +1,6 @@
 package edu.bluejack24_1.papryka.activities
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -10,10 +11,13 @@ import androidx.core.content.ContextCompat
 import edu.bluejack24_1.papryka.databinding.ActivityLoginBinding
 import edu.bluejack24_1.papryka.models.LoginRequest
 import edu.bluejack24_1.papryka.utils.NetworkUtils
+import edu.bluejack24_1.papryka.utils.getCurrentLanguage
+import edu.bluejack24_1.papryka.utils.setLanguageForApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 
 class LoginActivity : AppCompatActivity() {
 
@@ -22,9 +26,14 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val currentLanguage = getCurrentLanguage(this)
+        if (currentLanguage != null) {
+            setLanguageForApp(this, currentLanguage)
+        }
+
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
+
         binding.btnLogin.setOnClickListener { 
             val initial = binding.etInitial.text.toString()
             val password = binding.etPassword.text.toString()

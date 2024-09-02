@@ -36,9 +36,9 @@ class ScheduleFragment : Fragment() {
         TabLayoutMediator(tabLayout, viewPager) {
                 tab, position ->
             when (position) {
-                0 -> tab.text = "By Initial"
-                1 -> tab.text = "By Generation"
-                2 -> tab.text = "By Position"
+                0 -> tab.text = getString(R.string.by_initial)
+                1 -> tab.text = getString(R.string.by_generation)
+                2 -> tab.text = getString(R.string.by_position)
             }
         }.attach()
 

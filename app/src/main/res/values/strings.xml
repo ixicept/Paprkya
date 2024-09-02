@@ -7,22 +7,43 @@
     <string name="login_with_biometric">Login with biometric</string>
     <string name="schedule">Schedule</string>
     <string name="back">Back</string>
-    <string name="teaching_detail" translatable="false">Teaching Detail</string>
+    <string name="teaching_detail">Teaching Detail</string>
     <string name="course_outline" translatable="false">Course Outline</string>
     <string name="date">Date</string>
     <string name="date_format" translatable="false">dd/MM/yyyy</string>
     <string name="shift" translatable="false">Shift</string>
     <string name="view">View</string>
     <string name="initial_hint">INITIAL(s), separated by ;</string>
-    <string name="job_list" translatable="false">Job List</string>
-    <string name="legend" translatable="false">Legend</string>
-    <string name="not_done">= Not Done</string>
-    <string name="deadline">= Deadline</string>
-    <string name="waiting_for_approval">= Waiting for approval</string>
-    <string name="approved">= Approved</string>
-    <string name="room_transaction" translatable="false">Room Transaction</string>
-    <string name="include_unapproved_data" translatable="false">Include unapproved data</string>
-    <string name="include_onsite_status" translatable="false">Include onsite status</string>
+    <string name="job_list">Job List</string>
+    <string name="legend">Legend</string>
+    <string name="not_done">" = Not Done"</string>
+    <string name="deadline">" = Deadline"</string>
+    <string name="waiting_for_approval">" = Waiting for approval"</string>
+    <string name="approved">" = Approved"</string>
+    <string name="room_transaction">Room Transaction</string>
+    <string name="include_unapproved_data">Include unapproved data</string>
+    <string name="include_onsite_status">Include onsite status</string>
+    <string name="settings">Settings</string>
+    <string name="today">Today</string>
+    <string name="this_week">This week</string>
+    <string name="by_initial">Initial</string>
+    <string name="by_generation">Generation</string>
+    <string name="by_position">Position</string>
+    <string name="language">Change Language</string>
+    <string name="no_schedule">You have no schedule on this day.</string>
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
+    <string name="invalid_day" translatable="false">Invalid Day</string>
+    <string name="home">Home</string>
+    <string name="room">Room</string>
+    <string name="subject">Subject:</string>
+    <string name="classroom">"Class: "</string>
+    <string name="teaching_room">Room:</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string-array name="shifts">
         <item>1</item>

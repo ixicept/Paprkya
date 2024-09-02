@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import edu.bluejack24_1.papryka.R
 import edu.bluejack24_1.papryka.adapters.HomePagerAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentHomeBinding
 import edu.bluejack24_1.papryka.models.Schedule
@@ -43,8 +44,8 @@ class HomeFragment : Fragment() {
         TabLayoutMediator(tabLayout, viewPager) {
             tab, position ->
             when (position) {
-                0 -> tab.text = "Today"
-                1 -> tab.text = "This week"
+                0 -> tab.text = getString(R.string.today)
+                1 -> tab.text = getString(R.string.this_week)
             }
         }.attach()
 

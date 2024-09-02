@@ -12,12 +12,12 @@
         android:padding="32dp">
 
         <TextView
-            android:id="@+id/tvInitial"
+            android:id="@+id/tvSettings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:fontFamily="@font/ubuntu"
-            android:text="Settings"
+            android:text="@string/settings"
             android:textColor="@color/black"
             android:textSize="22sp"
             android:textStyle="bold" />
@@ -28,10 +28,11 @@
             android:orientation="horizontal"
             android:gravity="center">
             <TextView
+                android:id="@+id/tvLanguage"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Language"
+                android:text="@string/language"
                 android:textSize="16sp"
                 android:fontFamily="@font/ubuntu"
                 android:textColor="@color/black"/>
