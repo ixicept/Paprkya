@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "235409722699",
+    "project_id": "papryka-ebb31",
+    "storage_bucket": "papryka-ebb31.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:235409722699:android:cd534bedb5dfe5fe5c6cce",
+        "android_client_info": {
+          "package_name": "edu.bluejack24_1.papryka"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8o8uDwdvv9MMw6GJdmiS-T0SgBJKgJX0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
