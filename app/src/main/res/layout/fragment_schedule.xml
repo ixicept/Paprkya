@@ -14,7 +14,8 @@
         android:background="@color/dirty_white"
         android:gravity="start"
         android:orientation="vertical"
-        android:padding="32dp">
+        android:padding="32dp"
+        tools:ignore="UselessParent">
 
         <TextView
             android:id="@+id/tvInitial"
@@ -22,7 +23,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:fontFamily="@font/ubuntu"
-            android:text="Schedule"
+            android:text="@string/schedule"
             android:textColor="@color/black"
             android:textSize="22sp"
             android:textStyle="bold" />

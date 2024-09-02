@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Papryka</string>
+    <string name="welcome_back">Halo!</string>
+    <string name="login">Masuk</string>
+    <string name="initial">Inisial</string>
+    <string name="password">Password</string>
+    <string name="login_with_biometric">Masuk dengan biometric</string>
+    <string name="schedule">Jadwal</string>
+    <string name="schedule">Jadwal</string>
+    <string name="back">Kembali</string>
+    <string name="date">Tanggal</string>
+    <string name="view">Tampilkan</string>
+    <string name="initial_hint">INISIAL, dipisahkan ;</string>
+    <string name="not_done">Tidak dilakukan</string>
+    <string name="deadline">Tenggat waktu</string>
+    <string name="waiting_for_approval">Menunggu diterima</string>
+    <string name="approved">Diterima</string>
+</resources>

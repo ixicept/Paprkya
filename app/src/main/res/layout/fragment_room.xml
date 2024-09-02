@@ -10,14 +10,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="32dp">
+        android:padding="32dp"
+        tools:ignore="UselessParent">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:fontFamily="@font/ubuntu"
-            android:text="Room Transaction"
+            android:text="@string/room_transaction"
             android:textColor="@color/black"
             android:textSize="22sp"
             android:textStyle="bold" />
@@ -41,7 +42,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:fontFamily="@font/ubuntu"
-                    android:text="Date"
+                    android:text="@string/date"
                     android:textColor="@color/black"
                     android:textSize="14sp" />
 
@@ -51,7 +52,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/edit_text_background"
                     android:padding="16sp"
-                    android:text="dd/MM/yyyy"
+                    android:text="@string/date_format"
                     android:fontFamily="@font/ubuntu"
                     android:textColor="@color/black"
                     android:textSize="14sp" />
@@ -67,7 +68,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:fontFamily="@font/ubuntu"
-                    android:text="Shift"
+                    android:text="@string/shift"
                     android:textColor="@color/black"
                     android:textSize="14sp" />
 
@@ -86,7 +87,7 @@
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Include unapproved data"
+            android:text="@string/include_unapproved_data"
             android:textSize="16sp"
             android:fontFamily="@font/ubuntu"
             android:textColor="@color/black"/>
@@ -94,7 +95,7 @@
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Include onsite status"
+            android:text="@string/include_onsite_status"
             android:checked="true"
             android:textSize="16sp"
             android:fontFamily="@font/ubuntu"
@@ -103,7 +104,7 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="VIEW"
+            android:text="@string/view"
             app:cornerRadius="8dp"
             android:letterSpacing=".2"
             android:textStyle="bold"

@@ -5,20 +5,40 @@
     android:layout_height="match_parent"
     tools:context=".fragments.TeachingDetailFragment">
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="32dp"
+        tools:ignore="UselessParent">
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Back" />
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="@android:color/transparent"
+            android:fontFamily="@font/ubuntu"
+            android:insetLeft=""
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp"
+            android:text="@string/back"
+            android:textAlignment="textStart"
+            android:textAllCaps="true"
+            android:textColor="@color/black" />
+
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Teaching Detail" />
+            android:layout_marginBottom="8dp"
+            android:fontFamily="@font/ubuntu"
+            android:text="@string/teaching_detail"
+            android:textSize="22sp"
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -33,19 +53,25 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Room: " />
+            android:text="Room: "
+            android:layout_marginBottom="8dp"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Course Outline " />
+            android:text="@string/course_outline"
+            android:fontFamily="@font/ubuntu"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"
+            />
 
         <ExpandableListView
             android:id="@+id/expandableListView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:divider="@android:color/transparent"
-            android:dividerHeight="10dp" />
+            android:dividerHeight="8dp" />
 
 
     </LinearLayout>

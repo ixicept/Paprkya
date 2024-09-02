@@ -14,7 +14,8 @@
         android:background="@color/dirty_white"
         android:gravity="start"
         android:orientation="vertical"
-        android:padding="32dp">
+        android:padding="32dp"
+        tools:ignore="UselessParent">
 
         <TextView
             android:id="@+id/tvInitial"

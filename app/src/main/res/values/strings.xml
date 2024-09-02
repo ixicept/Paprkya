@@ -1,7 +1,29 @@
 <resources>
     <string name="app_name">Papryka</string>
+    <string name="welcome_back">Welcome back!</string>
+    <string name="login">Login</string>
+    <string name="initial">Initial</string>
+    <string name="password">Password</string>
+    <string name="login_with_biometric">Login with biometric</string>
+    <string name="schedule">Schedule</string>
+    <string name="back">Back</string>
+    <string name="teaching_detail" translatable="false">Teaching Detail</string>
+    <string name="course_outline" translatable="false">Course Outline</string>
+    <string name="date">Date</string>
+    <string name="date_format" translatable="false">dd/MM/yyyy</string>
+    <string name="shift" translatable="false">Shift</string>
+    <string name="view">View</string>
+    <string name="initial_hint">INITIAL(s), separated by ;</string>
+    <string name="job_list" translatable="false">Job List</string>
+    <string name="legend" translatable="false">Legend</string>
+    <string name="not_done">= Not Done</string>
+    <string name="deadline">= Deadline</string>
+    <string name="waiting_for_approval">= Waiting for approval</string>
+    <string name="approved">= Approved</string>
+    <string name="room_transaction" translatable="false">Room Transaction</string>
+    <string name="include_unapproved_data" translatable="false">Include unapproved data</string>
+    <string name="include_onsite_status" translatable="false">Include onsite status</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string-array name="shifts">
         <item>1</item>
         <item>2</item>
@@ -10,5 +32,9 @@
         <item>5</item>
         <item>6</item>
         <item>7</item>
+    </string-array>
+    <string-array name="languages">
+        <item>English</item>
+        <item>Bahasa Indonesia</item>
     </string-array>
 </resources>
