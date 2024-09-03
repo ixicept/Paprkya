@@ -1,6 +1,7 @@
 package edu.bluejack24_1.papryka.utils
 
 import edu.bluejack24_1.papryka.models.Casemaking
+import edu.bluejack24_1.papryka.models.CollegeSchedule
 import edu.bluejack24_1.papryka.models.Correction
 import edu.bluejack24_1.papryka.models.LoginRequest
 import edu.bluejack24_1.papryka.models.LoginResponse
@@ -38,6 +39,14 @@ object NetworkUtils {
             @Query("username") username: String,
             @Query("semesterId") semesterId: String = "be992b30-4b38-4361-8404-25f2d6912754"
         ): List<Schedule>
+
+        @GET("Schedule/GetBinusmayaStudentSchedule")
+        suspend fun getStudentSchedule(
+            @Header("Authorization") token: String,
+            @Query("nim") nim: String,
+            @Query("startDate") startDate: String,
+            @Query("endDate") endDate: String
+        ): CollegeSchedule
 
         @GET("Room/GetRooms")
         suspend fun getRooms(@Header("Authorization") token: String): List<Room>
