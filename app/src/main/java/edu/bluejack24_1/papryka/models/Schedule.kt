@@ -12,7 +12,7 @@ data class Schedule(
     var ShiftCode: Float,
     val Shift: String,
     val Room: String,
-    val Type: String,
+    var Type: String,
     val CourseOutlineId: String,
 ): Parcelable{
     init {

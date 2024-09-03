@@ -17,6 +17,7 @@ import edu.bluejack24_1.papryka.models.CollegeSchedule
 import edu.bluejack24_1.papryka.models.Schedule
 import edu.bluejack24_1.papryka.utils.NetworkUtils
 import edu.bluejack24_1.papryka.utils.getDateRange
+import edu.bluejack24_1.papryka.utils.getDayOfWeek
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,8 +44,7 @@ class HomeFragment : Fragment() {
         homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
         viewPager.adapter = homePagerAdapter
 
-        TabLayoutMediator(tabLayout, viewPager) {
-            tab, position ->
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             when (position) {
                 0 -> tab.text = getString(R.string.today)
                 1 -> tab.text = getString(R.string.this_week)
@@ -57,7 +57,8 @@ class HomeFragment : Fragment() {
     }
 
     private fun fetchUserInformation() {
-        val sharedPreferences = requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
+        val sharedPreferences =
+            requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
         val accessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
 
         if (accessToken != null) {
@@ -71,21 +72,27 @@ class HomeFragment : Fragment() {
                             vBinding.tvInitial.text = initial
                             println("User initial: $initial")
                             println("User nim: $nim")
-//                            fetchCollegeSchedule(nim, accessToken, "weekly")
+                            schedules.clear()
+                            fetchCollegeSchedule(nim, accessToken, "weekly")
                             fetchClassTransaction(initial, accessToken)
                         }
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
                         if (isAdded) {
-                            Toast.makeText(requireContext(), "Failed to get user information", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                requireContext(),
+                                "Failed to get user information",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 }
             }
         } else {
             if (isAdded) {
-                Toast.makeText(requireContext(), "Access token not found", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Access token not found", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
@@ -112,12 +119,14 @@ class HomeFragment : Fragment() {
                     } else if (response.isEmpty()) {
                         Toast.makeText(
                             requireContext(),
-                            "No college transactions found.",
+                            "No teaching transactions found.",
                             Toast.LENGTH_SHORT
                         ).show()
                     } else {
-                        schedules.clear()
-                        schedules.addAll(response)
+                        response.forEach {
+                            it.Type = "Teaching"
+                            schedules.add(it)
+                        }
                         homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
                         viewPager.adapter = homePagerAdapter
                         homePagerAdapter.notifyDataSetChanged()
@@ -127,13 +136,17 @@ class HomeFragment : Fragment() {
 
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(), "Failed to get class transactions", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Failed to get class transactions",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
     }
 
-    private fun fetchCollegeSchedule(nim: String, accessToken: String,timeframe: String) {
+    private fun fetchCollegeSchedule(nim: String, accessToken: String, timeframe: String) {
         val (startDate, endDate) = getDateRange(timeframe)
 
         CoroutineScope(Dispatchers.IO).launch {
@@ -143,8 +156,8 @@ class HomeFragment : Fragment() {
                     NetworkUtils.apiService.getStudentSchedule(
                         "Bearer $accessToken",
                         nim,
-                        startDate,
-                        endDate
+                        "2024-09-09",
+                        "2024-09-20"
                     )
                 }
 
@@ -162,19 +175,64 @@ class HomeFragment : Fragment() {
                             Toast.LENGTH_SHORT
                         ).show()
                     } else {
-//                        schedules.clear()
-//                        schedules.addAll(response)
-//                        homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
-//                        viewPager.adapter = homePagerAdapter
-//                        homePagerAdapter.notifyDataSetChanged()
+                        processCollegeSchedule(response)
+                        homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
+                        viewPager.adapter = homePagerAdapter
+                        homePagerAdapter.notifyDataSetChanged()
                         println("College Schedule: $response")
                     }
                 }
 
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(), "Failed to get college transactions", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Failed to get college transactions",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
+            }
+        }
+    }
+
+    private fun processCollegeSchedule(response: CollegeSchedule) {
+        response.values.forEach { detail ->
+            detail.forEach {
+                val endTime = when (it.Shift) {
+                    1 -> "09:00"
+                    2 -> "11:00"
+                    3 -> "13:00"
+                    4 -> "15:00"
+                    5 -> "17:00"
+                    6 -> "19:00"
+                    7 -> "21:00"
+                    else -> ""
+                }
+
+                val startTime = when (it.Shift) {
+                    1 -> "07:20"
+                    2 -> "09:20"
+                    3 -> "11:20"
+                    4 -> "13:20"
+                    5 -> "15:20"
+                    6 -> "17:20"
+                    7 -> "19:20"
+                    else -> ""
+                }
+
+
+                val schedule = Schedule(
+                    "${it.CourseCode} - ${it.CourseName}",
+                    "",
+                    getDayOfWeek(it.StartDate),
+                    .0F,
+                    "$startTime - $endTime",
+                    it.Room,
+                    "College",
+                    ""
+                )
+
+                schedules.add(schedule)
             }
         }
     }

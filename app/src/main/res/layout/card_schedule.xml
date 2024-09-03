@@ -20,8 +20,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:baselineAligned="false"
             android:gravity="center_vertical"
-            android:background="@color/android_green"
+            app:scheduleBackgroundBasedOnType="@{schedule.Type}"
             android:padding="12dp"
             android:orientation="horizontal">
 

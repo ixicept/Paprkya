@@ -55,6 +55,7 @@ class DayOfWeekScheduleAdapter(private val scheduleList: Map<String, List<Schedu
 
         holder.bind(position + 1, schedules, object : ScheduleAdapter.IOnItemClickCallback {
             override fun onItemClicked(schedule: Schedule) {
+                if (schedule.Type == "College") return
                 (holder.itemView.context as? AppCompatActivity)?.let { activity ->
                     val detailFragment = TeachingDetailFragment.newInstance(schedule)
                     activity.supportFragmentManager.beginTransaction()

@@ -49,6 +49,7 @@ class TodayFragment : Fragment() {
 
         scheduleAdapter.setOnItemClickCallback(object : ScheduleAdapter.IOnItemClickCallback {
             override fun onItemClicked(schedule: Schedule) {
+                if (schedule.Type == "College") return
                 val detailFragment = TeachingDetailFragment.newInstance(schedule)
 
                 requireActivity().supportFragmentManager.beginTransaction()
