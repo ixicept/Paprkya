@@ -1,6 +1,7 @@
 package edu.bluejack24_1.papryka.fragments
 
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -12,6 +13,8 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import edu.bluejack24_1.papryka.R
+import edu.bluejack24_1.papryka.activities.LoginActivity
+import edu.bluejack24_1.papryka.activities.MainActivity
 import edu.bluejack24_1.papryka.databinding.FragmentSettingsBinding
 import edu.bluejack24_1.papryka.utils.getCurrentLanguage
 import edu.bluejack24_1.papryka.utils.setLanguageForApp
@@ -74,6 +77,12 @@ class SettingsFragment : Fragment() {
             override fun onNothingSelected(p0: AdapterView<*>?) {
 //                setLanguageForApp("not-set")
             }
+        }
+
+        vBinding.btnLogout.setOnClickListener {
+            val intentToLogin = Intent(requireActivity(), LoginActivity::class.java)
+            startActivity(intentToLogin)
+            requireActivity().finish()
         }
 
         return vBinding.root

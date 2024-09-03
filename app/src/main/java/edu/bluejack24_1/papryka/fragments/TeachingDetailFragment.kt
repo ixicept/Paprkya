@@ -40,6 +40,10 @@ class TeachingDetailFragment : Fragment() {
         expandableListAdapter = CourseOutlineListAdapter(requireActivity(), expandableListTitle, expandableListDetail)
         expandableListView.setAdapter(expandableListAdapter)
 
+        vBinding.btnBack.setOnClickListener {
+            requireActivity().supportFragmentManager.popBackStack()
+        }
+
         fetchDetail()
         return vBinding.root
     }

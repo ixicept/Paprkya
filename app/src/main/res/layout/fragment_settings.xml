@@ -3,13 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".fragments.SettingsFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="32dp">
+        android:padding="32dp"
+        tools:ignore="UselessParent">
 
         <TextView
             android:id="@+id/tvSettings"
@@ -26,7 +28,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center">
+            android:gravity="center"
+            android:layout_marginBottom="16dp">
             <TextView
                 android:id="@+id/tvLanguage"
                 android:layout_width="0dp"
@@ -49,6 +52,16 @@
                 />
         </LinearLayout>
 
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/cinnabar"
+            app:cornerRadius="8dp"
+            android:text="@string/logout"
+            android:textStyle="bold"
+            android:fontFamily="@font/ubuntu"
+            android:textAllCaps="true"/>
     </LinearLayout>
 
 </FrameLayout>

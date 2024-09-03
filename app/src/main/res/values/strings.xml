@@ -45,6 +45,7 @@
     <string name="classroom">"Class: "</string>
     <string name="teaching_room">Room:</string>
     <string name="campus">Campus</string>
+    <string name="logout">LOGOUT</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string-array name="shifts">
         <item>1</item>

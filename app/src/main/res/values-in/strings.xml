@@ -42,4 +42,5 @@
     <string name="classroom">Kelas:</string>
     <string name="teaching_room">Ruangan:</string>
     <string name="campus">Kampus</string>
+    <string name="logout">Keluar</string>
 </resources>
