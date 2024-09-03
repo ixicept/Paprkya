@@ -10,7 +10,7 @@
     <string name="teaching_detail">Teaching Detail</string>
     <string name="course_outline" translatable="false">Course Outline</string>
     <string name="date">Date</string>
-    <string name="date_format" translatable="false">dd/MM/yyyy</string>
+    <string name="date_format" translatable="false">yyyy-MM-dd</string>
     <string name="shift" translatable="false">Shift</string>
     <string name="view">View</string>
     <string name="initial_hint">INITIAL(s), separated by ;</string>
@@ -44,6 +44,7 @@
     <string name="subject">Subject:</string>
     <string name="classroom">"Class: "</string>
     <string name="teaching_room">Room:</string>
+    <string name="campus">Campus</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string-array name="shifts">
         <item>1</item>
@@ -57,5 +58,15 @@
     <string-array name="languages">
         <item>English</item>
         <item>Bahasa Indonesia</item>
+    </string-array>
+    <string-array name="campuses">
+        <item>Anggrek</item>
+        <item>Syahdan</item>
+        <item>Kijang</item>
+        <item>Alam Sutera</item>
+        <item>Bekasi</item>
+        <item>Bandung</item>
+        <item>Malang</item>
+        <item>Semarang</item>
     </string-array>
 </resources>

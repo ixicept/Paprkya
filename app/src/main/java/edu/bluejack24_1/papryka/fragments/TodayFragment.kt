@@ -35,6 +35,12 @@ class TodayFragment : Fragment() {
 
         vBinding = FragmentTodayBinding.inflate(inflater, container, false)
 
+        if (getToday(schedules).isEmpty()) {
+            vBinding.noSchedule.visibility = View.VISIBLE
+        } else {
+            vBinding.noSchedule.visibility = View.GONE
+        }
+
         val scheduleAdapter = ScheduleAdapter(getToday(schedules))
 
         vBinding.rvToday.adapter = scheduleAdapter

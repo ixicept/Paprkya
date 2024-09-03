@@ -41,4 +41,5 @@
     <string name="subject">Mata kuliah:</string>
     <string name="classroom">Kelas:</string>
     <string name="teaching_room">Ruangan:</string>
+    <string name="campus">Kampus</string>
 </resources>

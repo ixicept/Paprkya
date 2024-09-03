@@ -10,10 +10,12 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         tools:ignore="UselessParent">
+
         <TextView
+            android:id="@+id/noSchedule"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Shift: Morning"
+            android:text="@string/no_schedule"
             android:fontFamily="@font/ubuntu"
             />
 

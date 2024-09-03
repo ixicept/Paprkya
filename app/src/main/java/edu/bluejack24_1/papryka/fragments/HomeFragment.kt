@@ -71,7 +71,7 @@ class HomeFragment : Fragment() {
                             vBinding.tvInitial.text = initial
                             println("User initial: $initial")
                             println("User nim: $nim")
-                            fetchCollegeSchedule(nim, accessToken, "weekly")
+//                            fetchCollegeSchedule(nim, accessToken, "weekly")
                             fetchClassTransaction(initial, accessToken)
                         }
                     }

@@ -54,9 +54,9 @@ object NetworkUtils {
         @GET("Room/GetTransactions")
         suspend fun getRoomTransactions(
             @Header("Authorization") token: String,
-            @Query("startDate") startDate: String = "2024-10-14", //ini default value
-            @Query("endDate") endDate: String = "2024-10-14", //ini default value
-            @Query("includeUnapproved") includeUnapproved: Boolean = false //ini default value
+            @Query("startDate") startDate: String = "2024-09-09", //ini default value
+            @Query("endDate") endDate: String = "2024-09-09", //ini default value
+            @Query("includeUnapproved") includeUnapproved: Boolean = true //ini default value
         ): RoomTransaction
 
         @GET("Correction/GetCorrectionSchedules")

@@ -10,4 +10,7 @@ data class StatusDetail(
     val Description: String?,
     val TransactionDetailId: String?,
     val TransactionId: String?,
-): Parcelable
+    var RoomName: String?,
+): Parcelable {
+    constructor(Description: String, RoomName: String) : this("", "", Description, "", "", RoomName)
+}
