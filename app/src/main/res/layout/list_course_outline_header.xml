@@ -5,8 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="16dp"
-    android:textSize="18sp"
+    android:textSize="16sp"
     android:textColor="#000"
-    android:background="#FFFFFF"
+    android:background="@drawable/edit_text_background"
     android:drawablePadding="8dp"
-    app:drawableEndCompat="@android:drawable/arrow_down_float" />
+    android:fontFamily="@font/ubuntu"
+    app:drawableEndCompat="@drawable/round_keyboard_arrow_down_24" />

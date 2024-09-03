@@ -41,9 +41,9 @@
     <string name="invalid_day" translatable="false">Invalid Day</string>
     <string name="home">Home</string>
     <string name="room">Room</string>
-    <string name="subject">Subject:</string>
-    <string name="classroom">"Class: "</string>
-    <string name="teaching_room">Room:</string>
+    <string name="subject">Subject</string>
+    <string name="classroom">Class</string>
+    <string name="teaching_room">Room</string>
     <string name="campus">Campus</string>
     <string name="logout">LOGOUT</string>
     <!-- TODO: Remove or change this placeholder text -->

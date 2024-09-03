@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".fragments.TeachingDetailFragment">
 
 
@@ -17,7 +18,7 @@
             android:id="@+id/btnBack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="16dp"
             android:backgroundTint="@android:color/transparent"
             android:fontFamily="@font/ubuntu"
             android:insetTop="0dp"
@@ -41,20 +42,26 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/tvSubject"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/ubuntu"
             android:text="@string/subject" />
 
         <TextView
+            android:id="@+id/tvClass"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/ubuntu"
             android:text="@string/classroom" />
 
         <TextView
+            android:id="@+id/tvRoom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/ubuntu"
             android:text="@string/teaching_room"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="12dp"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -70,8 +77,9 @@
             android:id="@+id/expandableListView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:childDivider="@android:color/transparent"
             android:divider="@android:color/transparent"
-            android:dividerHeight="8dp" />
+            android:dividerHeight="4dp" />
 
 
     </LinearLayout>

@@ -11,7 +11,7 @@ import edu.bluejack24_1.papryka.R
 class CourseOutlineListAdapter(
     private val context: Context,
     private val expandableListTitle: List<String>,
-    private val expandableListDetail: HashMap<String, List<String>>
+    private val expandableListDetail: Map<String, List<String>>
 ) : BaseExpandableListAdapter() {
 
     override fun getChild(listPosition: Int, expandedListPosition: Int): Any {

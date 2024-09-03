@@ -8,6 +8,7 @@ import android.widget.ExpandableListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import edu.bluejack24_1.papryka.R
 import edu.bluejack24_1.papryka.adapters.CourseOutlineListAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentTeachingDetailBinding
 import edu.bluejack24_1.papryka.models.Schedule
@@ -28,17 +29,30 @@ class TeachingDetailFragment : Fragment() {
     private lateinit var expandableListTitle: List<String>
     private lateinit var expandableListAdapter: CourseOutlineListAdapter
 
+    private lateinit var schedule: Schedule
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            schedule = it.getParcelable(ARG_SCHEDULE)!!
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         vBinding = FragmentTeachingDetailBinding.inflate(inflater, container, false)
 
+        vBinding.tvSubject.text = String.format("%s\t: %s", getString(R.string.subject), schedule.Subject)
+        vBinding.tvClass.text = String.format("%s\t: %s", getString(R.string.classroom), schedule.Class)
+        vBinding.tvRoom.text = String.format("%s\t: %s", getString(R.string.teaching_room), schedule.Room)
+
         expandableListView = vBinding.expandableListView
-        expandableListDetail = getData()
-        expandableListTitle = ArrayList(expandableListDetail.keys)
-        expandableListAdapter = CourseOutlineListAdapter(requireActivity(), expandableListTitle, expandableListDetail)
-        expandableListView.setAdapter(expandableListAdapter)
+        expandableListView.setGroupIndicator(null)
+        val displayMetrics = resources.displayMetrics
+        val width = displayMetrics.widthPixels
+        expandableListView.setIndicatorBoundsRelative(width - 16, width)
 
         vBinding.btnBack.setOnClickListener {
             requireActivity().supportFragmentManager.popBackStack()
@@ -106,6 +120,7 @@ class TeachingDetailFragment : Fragment() {
                 val response: TeachingDetailResponse? = withTimeoutOrNull(timeoutDuration) {
                     NetworkUtils.apiService.getCourseOutlineDetail(
                         "Bearer $accessToken",
+                        schedule.CourseOutlineId
                     )
                 }
 
@@ -117,12 +132,23 @@ class TeachingDetailFragment : Fragment() {
                             Toast.LENGTH_SHORT
                         ).show()
                     }  else {
-//                        schedules.clear()
-//                        schedules.addAll(response)
-//                        homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
-//                        viewPager.adapter = homePagerAdapter
-//                        homePagerAdapter.notifyDataSetChanged()
-                        println("Teaching Detail: $response")
+                        val expandableListDetail = HashMap<String, List<String>>()
+
+                        response.Laboratory.forEach { session ->
+                            val title = "Session ${session.Session}: ${session.Topics}"
+                            expandableListDetail[title] = session.SubTopics.map { subTopic -> subTopic.Value }
+                        }
+
+                        val sortedExpandableListDetail = expandableListDetail.entries
+                            .sortedBy { entry ->
+                                entry.key.substringAfter("Session ").substringBefore(":").trim().toIntOrNull() ?: Int.MAX_VALUE
+                            }.associate { it.toPair() }
+
+                        println(sortedExpandableListDetail)
+
+                        expandableListTitle = ArrayList(sortedExpandableListDetail.keys)
+                        expandableListAdapter = CourseOutlineListAdapter(requireActivity(), expandableListTitle, sortedExpandableListDetail)
+                        expandableListView.setAdapter(expandableListAdapter)
                     }
                 }
 
