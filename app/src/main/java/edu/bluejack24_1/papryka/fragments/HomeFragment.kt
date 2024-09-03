@@ -13,8 +13,10 @@ import com.google.android.material.tabs.TabLayoutMediator
 import edu.bluejack24_1.papryka.R
 import edu.bluejack24_1.papryka.adapters.HomePagerAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentHomeBinding
+import edu.bluejack24_1.papryka.models.CollegeSchedule
 import edu.bluejack24_1.papryka.models.Schedule
 import edu.bluejack24_1.papryka.utils.NetworkUtils
+import edu.bluejack24_1.papryka.utils.getDateRange
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -65,8 +67,11 @@ class HomeFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         if (isAdded) {
                             val initial = response.Username
+                            val nim = response.BinusianNumber
                             vBinding.tvInitial.text = initial
                             println("User initial: $initial")
+                            println("User nim: $nim")
+                            fetchCollegeSchedule(nim, accessToken, "weekly")
                             fetchClassTransaction(initial, accessToken)
                         }
                     }
@@ -107,7 +112,7 @@ class HomeFragment : Fragment() {
                     } else if (response.isEmpty()) {
                         Toast.makeText(
                             requireContext(),
-                            "No class transactions found.",
+                            "No college transactions found.",
                             Toast.LENGTH_SHORT
                         ).show()
                     } else {
@@ -116,12 +121,59 @@ class HomeFragment : Fragment() {
                         homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
                         viewPager.adapter = homePagerAdapter
                         homePagerAdapter.notifyDataSetChanged()
+
                     }
                 }
 
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(requireContext(), "Failed to get class transactions", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun fetchCollegeSchedule(nim: String, accessToken: String,timeframe: String) {
+        val (startDate, endDate) = getDateRange(timeframe)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val timeoutDuration = 10_000L
+            try {
+                val response: CollegeSchedule? = withTimeoutOrNull(timeoutDuration) {
+                    NetworkUtils.apiService.getStudentSchedule(
+                        "Bearer $accessToken",
+                        nim,
+                        startDate,
+                        endDate
+                    )
+                }
+
+                withContext(Dispatchers.Main) {
+                    if (response == null) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Request timed out or failed. Please try again.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else if (response.isEmpty()) {
+                        Toast.makeText(
+                            requireContext(),
+                            "No college transactions found.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+//                        schedules.clear()
+//                        schedules.addAll(response)
+//                        homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
+//                        viewPager.adapter = homePagerAdapter
+//                        homePagerAdapter.notifyDataSetChanged()
+                        println("College Schedule: $response")
+                    }
+                }
+
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Failed to get college transactions", Toast.LENGTH_SHORT).show()
                 }
             }
         }
