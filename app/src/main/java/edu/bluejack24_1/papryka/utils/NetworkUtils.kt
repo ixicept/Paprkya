@@ -8,6 +8,7 @@ import edu.bluejack24_1.papryka.models.LoginResponse
 import edu.bluejack24_1.papryka.models.Room
 import edu.bluejack24_1.papryka.models.RoomTransaction
 import edu.bluejack24_1.papryka.models.Schedule
+import edu.bluejack24_1.papryka.models.TeachingDetailResponse
 import edu.bluejack24_1.papryka.models.User
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -71,6 +72,25 @@ object NetworkUtils {
             @Query("mode") mode: String = "history", //future atau history atau current
             @Query("semesterId") semesterId: String = "f6e478f5-428c-4eb2-9aa5-6036488f24b3" //EVEN 2023/2024
             ): List<Casemaking>
+
+        @GET("Assistant/GetUserWithRoles")
+        suspend fun getAssistantByRole(
+            @Header("Authorization") token: String,
+            @Query("role") role: String = "Software Teaching Assistant" //ini default value
+        ): List<User>
+
+        @GET("Assistant")
+        suspend fun getAssistantByGeneration(
+            @Header("Authorization") token: String,
+            @Query("initial") initial: String = "", //ini default value
+            @Query("generation") generation: String ="24-1", //ini default value
+        ): List<User>
+
+        @GET("Course/GetCourseOutlineDetail")
+        suspend fun getCourseOutlineDetail(
+            @Header("Authorization") token: String,
+            @Query("courseOutlineId") courseOutlineId: String = "965b6b1a-e431-e611-903a-d8d385fce79e"
+        ): TeachingDetailResponse
     }
 
     val apiService: ApiService by lazy { retrofit.create(ApiService::class.java) }
