@@ -1,18 +1,25 @@
 package edu.bluejack24_1.papryka.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import edu.bluejack24_1.papryka.R
-import edu.bluejack24_1.papryka.adapters.JobListPagerAdapter
 import edu.bluejack24_1.papryka.adapters.SchedulePagerAdapter
-import edu.bluejack24_1.papryka.databinding.FragmentJobListBinding
 import edu.bluejack24_1.papryka.databinding.FragmentScheduleBinding
+import edu.bluejack24_1.papryka.models.Schedule
+import edu.bluejack24_1.papryka.utils.NetworkUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 class ScheduleFragment : Fragment() {
 
@@ -42,7 +49,54 @@ class ScheduleFragment : Fragment() {
             }
         }.attach()
 
+
+
+        fetchAssistant();
         return vBinding.root
+    }
+
+    private fun fetchAssistant() {
+        val sharedPreferences = requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
+        val accessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
+        CoroutineScope(Dispatchers.IO).launch {
+            val timeoutDuration = 10_000L
+            try {
+                val response: List<Schedule>? = withTimeoutOrNull(timeoutDuration) {
+                    NetworkUtils.apiService.getClassTransactionByAssistantUsername(
+                        "Bearer $accessToken",
+                        "PP24-1"
+                    )
+                }
+
+                withContext(Dispatchers.Main) {
+                    if (response == null) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Request timed out or failed. Please try again.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else if (response.isEmpty()) {
+                        Toast.makeText(
+                            requireContext(),
+                            "No college transactions found.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+//                        schedules.clear()
+//                        schedules.addAll(response)
+//                        homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
+//                        viewPager.adapter = homePagerAdapter
+//                        homePagerAdapter.notifyDataSetChanged()
+                        println("College Schedule: $response")
+                    }
+                }
+
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Failed to get college transactions", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
 }

@@ -1,15 +1,23 @@
 package edu.bluejack24_1.papryka.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ExpandableListView
-import edu.bluejack24_1.papryka.R
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import edu.bluejack24_1.papryka.adapters.CourseOutlineListAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentTeachingDetailBinding
 import edu.bluejack24_1.papryka.models.Schedule
+import edu.bluejack24_1.papryka.models.TeachingDetailResponse
+import edu.bluejack24_1.papryka.utils.NetworkUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 class TeachingDetailFragment : Fragment() {
 
@@ -32,6 +40,7 @@ class TeachingDetailFragment : Fragment() {
         expandableListAdapter = CourseOutlineListAdapter(requireActivity(), expandableListTitle, expandableListDetail)
         expandableListView.setAdapter(expandableListAdapter)
 
+        fetchDetail()
         return vBinding.root
     }
 
@@ -81,6 +90,45 @@ class TeachingDetailFragment : Fragment() {
         expandableListDetail["Session 6"] = session6
 
         return expandableListDetail
+    }
+
+    private fun fetchDetail(){
+        val sharedPreferences = requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
+        val accessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val timeoutDuration = 10_000L
+            try {
+                val response: TeachingDetailResponse? = withTimeoutOrNull(timeoutDuration) {
+                    NetworkUtils.apiService.getCourseOutlineDetail(
+                        "Bearer $accessToken",
+                    )
+                }
+
+                withContext(Dispatchers.Main) {
+                    if (response == null) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Request timed out or failed. Please try again.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }  else {
+//                        schedules.clear()
+//                        schedules.addAll(response)
+//                        homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
+//                        viewPager.adapter = homePagerAdapter
+//                        homePagerAdapter.notifyDataSetChanged()
+                        println("Teaching Detail: $response")
+                    }
+                }
+
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    println(e)
+                    Toast.makeText(requireContext(), "Failed to get Teaching Detail transactions", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
 
