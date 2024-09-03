@@ -42,6 +42,9 @@ class JobListFragment : Fragment() {
         tabLayout = vBinding.tabLayout
         viewPager = vBinding.viewPager
 
+        fetchCasemaking()
+        fetchCorrection()
+
         jobListPagerAdapter = JobListPagerAdapter(requireActivity(), corrections, casemakings)
         viewPager.adapter = jobListPagerAdapter
 
@@ -52,9 +55,6 @@ class JobListFragment : Fragment() {
                 1 -> tab.text = "Casemaking"
             }
         }.attach()
-
-        fetchCasemaking()
-        fetchCorrection()
 
         return vBinding.root
     }
@@ -67,7 +67,6 @@ class JobListFragment : Fragment() {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     val casemaking = NetworkUtils.apiService.getJobsAssistant("Bearer $accessToken")
-                    casemakings.addAll(casemaking)
                     withContext(Dispatchers.Main) {
                         proccesCasemaking(casemaking)
                     }
@@ -82,15 +81,18 @@ class JobListFragment : Fragment() {
         }
     }
 
-    //agak bruteforce
     private fun proccesCasemaking(jobs: List<Casemaking>) {
+        casemakings.clear()
         for (job in jobs) {
             if (job.isCaseMaking){
-                val variation= getVariation(job.Description)
-                val type = getDescription(job.Description)
-                println("Job Type: $type, Variation: $variation")
+                job.Type = getDescription(job.Description)
+                job.Variation = getVariation(job.Description)
+                casemakings.add(job)
             }
         }
+        jobListPagerAdapter = JobListPagerAdapter(requireActivity(), corrections, casemakings)
+        viewPager.adapter = jobListPagerAdapter
+        jobListPagerAdapter.notifyDataSetChanged()
     }
 
     private fun getDescription(description: String): String {
@@ -122,9 +124,12 @@ class JobListFragment : Fragment() {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     val correction = NetworkUtils.apiService.getCorrectionSchedules("Bearer $accessToken")
-                    corrections.addAll(correction)
                     withContext(Dispatchers.Main) {
-                        print("Correction: $correction")
+                        corrections.clear()
+                        corrections.addAll(correction)
+                        jobListPagerAdapter = JobListPagerAdapter(requireActivity(), corrections, casemakings)
+                        viewPager.adapter = jobListPagerAdapter
+                        jobListPagerAdapter.notifyDataSetChanged()
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {

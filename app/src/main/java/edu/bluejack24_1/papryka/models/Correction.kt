@@ -5,6 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Correction(
+    val CourseName: String,
     val ClassName: String,
     val StartDate: String,
     val EndDate: String,

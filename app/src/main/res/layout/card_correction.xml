@@ -20,7 +20,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/android_green"
+            app:backgroundBasedOnStatus="@{correction.Status}"
             android:gravity="center_vertical"
             android:orientation="vertical"
             android:padding="12dp">
@@ -34,6 +34,7 @@
                 android:paddingBottom="4dp"
                 android:textColor="@android:color/black"
                 android:textSize="18sp"
+                android:text="@{correction.CourseName}"
                 tools:text="Algorithm &amp; Programming" />
 
             <LinearLayout
@@ -47,6 +48,7 @@
                     android:fontFamily="@font/ubuntu"
                     android:textColor="@android:color/black"
                     android:textSize="16sp"
+                    android:text="@{correction.Type}"
                     tools:text="Project" />
 
                 <TextView
@@ -56,6 +58,7 @@
                     android:fontFamily="@font/ubuntu"
                     android:textColor="@android:color/black"
                     android:textSize="16sp"
+                    android:text="@{correction.ClassName}"
                     tools:text="BD01" />
 
                 <TextView
@@ -64,6 +67,7 @@
                     android:fontFamily="@font/ubuntu"
                     android:textColor="@android:color/black"
                     android:textSize="16sp"
+                    android:text="@{String.format(&quot;%s - %s&quot;, correction.StartDate, correction.EndDate)}"
                     tools:text="01/07/2024 - 10/07/2024" />
 
             </LinearLayout>

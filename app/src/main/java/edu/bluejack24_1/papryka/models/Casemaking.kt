@@ -9,16 +9,15 @@ data class Casemaking(
     val StartDate: String,
     val EndDate: String,
     val Status: String,
-    val JobType: String
+    val JobType: String,
+    var Variation: String,
+    var Type: String
 ) : Parcelable {
     val isCaseMaking: Boolean
         get() = JobType == "Case Making"
 
-    val type: String = getDescription(Description)
-    val variation: String = getVariation(Description)
-
     //masi error
-    private fun getDescription(description: String): String {
+    fun getDescription(description: String): String {
         println(description)
         val words = description.split(" ")
         println(words)
@@ -29,7 +28,7 @@ data class Casemaking(
         }
     }
 
-    private fun getVariation(description: String): String {
+    fun getVariation(description: String): String {
         val words = description.split(" ")
         return if (words.isNotEmpty()) {
             words.last()

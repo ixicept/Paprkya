@@ -13,7 +13,7 @@ import edu.bluejack24_1.papryka.models.Correction
 
 class CorrectionFragment : Fragment() {
 
-    private lateinit var corrections: List<Correction>
+    private var corrections: List<Correction> = emptyList()
     private lateinit var vBinding: FragmentCorrectionBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
