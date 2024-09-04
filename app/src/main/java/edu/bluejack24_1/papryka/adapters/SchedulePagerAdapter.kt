@@ -10,20 +10,40 @@ import edu.bluejack24_1.papryka.fragments.InitialFragment
 import edu.bluejack24_1.papryka.fragments.PositionFragment
 import edu.bluejack24_1.papryka.models.Schedule
 
-class SchedulePagerAdapter(fa: FragmentActivity): FragmentStateAdapter(fa) {
+class SchedulePagerAdapter(
+    fa: FragmentActivity,
+    private val date: String,
+    private val day: String,
+    private val shift: String,
+    private val midCode: String
+) : FragmentStateAdapter(fa) {
+
+    private var initialFragment: InitialFragment? = null
+
     override fun getItemCount(): Int {
         return 3
     }
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> InitialFragment()
+            0 -> {
+                initialFragment = InitialFragment.newInstance(date, day, shift, midCode)
+                initialFragment!!
+            }
             1 -> GenerationFragment()
             2 -> PositionFragment()
 
-            else -> InitialFragment()
+            else -> InitialFragment.newInstance(date, day, shift, midCode)
 
         }
+    }
+
+    fun updateDate(newDate: String) {
+        initialFragment?.updateDate(newDate)
+    }
+
+    fun updateShift(newShift: String) {
+        initialFragment?.updateShift(newShift)
     }
 
 }

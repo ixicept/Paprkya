@@ -31,7 +31,11 @@ class DayOfWeekScheduleAdapter(private val scheduleList: Map<String, List<Schedu
                 binding.tvNoSchedule.visibility = View.GONE
             }
 
-            val scheduleAdapter = ScheduleAdapter(schedules)
+            val sortedSchedules = schedules.sortedBy { it.ShiftCode }
+
+            println(schedules)
+
+            val scheduleAdapter = ScheduleAdapter(sortedSchedules)
             scheduleAdapter.setOnItemClickCallback(onItemClickCallback)
             binding.rvSchedule.adapter = scheduleAdapter
             binding.rvSchedule.layoutManager = GridLayoutManager(binding.root.context, 1)

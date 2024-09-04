@@ -47,6 +47,7 @@
     <string name="campus">Campus</string>
     <string name="logout">LOGOUT</string>
     <string name="mid_code" translatable="false">Mid Code</string>
+    <string name="day">Day</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string-array name="shifts">
         <item>1</item>
@@ -56,6 +57,19 @@
         <item>5</item>
         <item>6</item>
         <item>7</item>
+    </string-array>
+    <string-array name="days">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+    </string-array>
+    <string-array name="mid_codes">
+        <item>1</item>
+        <item>2</item>
     </string-array>
     <string-array name="languages">
         <item>English</item>
@@ -70,5 +84,28 @@
         <item>Bandung</item>
         <item>Malang</item>
         <item>Semarang</item>
+    </string-array>
+    <string-array name="generations">
+        <item>13&#8211;0</item>
+        <item>14&#8211;0</item>
+        <item>15&#8211;2</item>
+        <item>16&#8211;1</item>
+        <item>16&#8211;2</item>
+        <item>17&#8211;1</item>
+        <item>17&#8211;2</item>
+        <item>18&#8211;1</item>
+        <item>18&#8211;2</item>
+        <item>19&#8211;1</item>
+        <item>19&#8211;2</item>
+        <item>20&#8211;1</item>
+        <item>20&#8211;2</item>
+        <item>21&#8211;1</item>
+        <item>21&#8211;2</item>
+        <item>22&#8211;1</item>
+        <item>22&#8211;2</item>
+        <item>23&#8211;1</item>
+        <item>23&#8211;2</item>
+        <item>24&#8211;1</item>
+        <item>24&#8211;2</item>
     </string-array>
 </resources>

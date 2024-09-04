@@ -1,14 +1,11 @@
 package edu.bluejack24_1.papryka.fragments
 
 import android.app.DatePickerDialog
-import android.app.DatePickerDialog.OnDateSetListener
 import android.icu.text.SimpleDateFormat
-import android.icu.util.Calendar
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
@@ -20,6 +17,7 @@ import edu.bluejack24_1.papryka.adapters.RoomAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentRoomBinding
 import edu.bluejack24_1.papryka.models.StatusDetail
 import edu.bluejack24_1.papryka.utils.NetworkUtils
+import edu.bluejack24_1.papryka.utils.showDateDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,7 +26,6 @@ import java.util.Locale
 
 class RoomFragment : Fragment() {
 
-    private lateinit var datePickerDialog: DatePickerDialog
     private lateinit var dateFormatter: SimpleDateFormat
     private lateinit var etDate: TextView
 
@@ -67,7 +64,7 @@ class RoomFragment : Fragment() {
 
         dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         etDate = vBinding.etDate
-        etDate.setOnClickListener { showDateDialog() }
+        etDate.setOnClickListener { showDateDialog(requireContext(), etDate, dateFormatter) }
 
         val btnView = vBinding.btnView
 
@@ -160,21 +157,5 @@ class RoomFragment : Fragment() {
         }
     }
 
-    private fun showDateDialog() {
-        val newCalendar: Calendar = Calendar.getInstance()
-        datePickerDialog = DatePickerDialog(
-            requireContext(),
-            OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                val newDate: Calendar = Calendar.getInstance()
-                newDate.set(year, monthOfYear, dayOfMonth)
-                etDate.text = dateFormatter.format(newDate.time)
-            },
-            newCalendar.get(Calendar.YEAR),
-            newCalendar.get(Calendar.MONTH),
-            newCalendar.get(Calendar.DAY_OF_MONTH)
-        )
-
-        datePickerDialog.show()
-    }
 
 }

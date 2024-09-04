@@ -1,5 +1,8 @@
 package edu.bluejack24_1.papryka.utils
 
+import android.app.DatePickerDialog
+import android.content.Context
+import android.widget.TextView
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -34,8 +37,8 @@ fun getDateRange(timeframe: String): Pair<String, String> {
     return Pair(startDate, endDate)
 }
 
-fun getDayOfWeek(dateString: String): Int {
-    val format = SimpleDateFormat("M/d/yyyy hh:mm:ss a", Locale.ENGLISH)
+fun getDayOfWeek(dateFormat: String, dateString: String): Int {
+    val format = SimpleDateFormat(dateFormat, Locale.ENGLISH)
     val date = format.parse(dateString)
 
     val calendar = Calendar.getInstance()
@@ -55,3 +58,23 @@ fun getDayOfWeek(dateString: String): Int {
         else -> 1
     }
 }
+
+fun showDateDialog(context: Context, etDate: TextView, dateFormatter: android.icu.text.SimpleDateFormat) {
+    val newCalendar: android.icu.util.Calendar = android.icu.util.Calendar.getInstance()
+    val datePickerDialog = DatePickerDialog(
+        context,
+        DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+            val newDate: android.icu.util.Calendar = android.icu.util.Calendar.getInstance()
+            newDate.set(year, monthOfYear, dayOfMonth)
+            etDate.text = dateFormatter.format(newDate.time)
+        },
+        newCalendar.get(android.icu.util.Calendar.YEAR),
+        newCalendar.get(android.icu.util.Calendar.MONTH),
+        newCalendar.get(android.icu.util.Calendar.DAY_OF_MONTH)
+    )
+
+    datePickerDialog.show()
+}
+
+
+

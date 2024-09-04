@@ -1,9 +1,16 @@
 package edu.bluejack24_1.papryka.fragments
 
+import android.app.DatePickerDialog
+import android.icu.text.SimpleDateFormat
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -15,11 +22,13 @@ import edu.bluejack24_1.papryka.adapters.SchedulePagerAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentScheduleBinding
 import edu.bluejack24_1.papryka.models.Schedule
 import edu.bluejack24_1.papryka.utils.NetworkUtils
+import edu.bluejack24_1.papryka.utils.showDateDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import java.util.Locale
 
 class ScheduleFragment : Fragment() {
 
@@ -27,6 +36,9 @@ class ScheduleFragment : Fragment() {
     private lateinit var tabLayout: TabLayout;
     private lateinit var viewPager: ViewPager2;
     private lateinit var jobListPagerAdapter: SchedulePagerAdapter
+
+    private lateinit var dateFormatter: SimpleDateFormat
+    private lateinit var etDate: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,11 +49,54 @@ class ScheduleFragment : Fragment() {
         tabLayout = vBinding.tabLayout
         viewPager = vBinding.viewPager
 
-        jobListPagerAdapter = SchedulePagerAdapter(requireActivity())
+//        val daySpinner = vBinding.spDay
+//
+//        ArrayAdapter.createFromResource(
+//            requireContext(),
+//            R.array.days,
+//            android.R.layout.simple_spinner_item
+//        ).also { adapter ->
+//            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//            daySpinner.adapter = adapter
+//        }
+//
+//        val midCodeSpinner = vBinding.spMidCode
+//
+//        ArrayAdapter.createFromResource(
+//            requireContext(),
+//            R.array.mid_codes,
+//            android.R.layout.simple_spinner_item
+//        ).also { adapter ->
+//            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//            midCodeSpinner.adapter = adapter
+//        }
+
+        val shiftSpinner = vBinding.spShift
+
+        ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.shifts,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            shiftSpinner.adapter = adapter
+        }
+
+        val selectedDay = ""
+        var selectedShift = shiftSpinner.selectedItem.toString()
+        val selectedMidCode = ""
+
+        dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        etDate = vBinding.etDate
+        etDate.setOnClickListener { showDateDialog(requireContext(), etDate, dateFormatter) }
+
+        jobListPagerAdapter = SchedulePagerAdapter(
+            requireActivity(),
+            etDate.text.toString(), selectedDay, selectedShift, selectedMidCode
+        )
         viewPager.adapter = jobListPagerAdapter
 
-        TabLayoutMediator(tabLayout, viewPager) {
-                tab, position ->
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             when (position) {
                 0 -> tab.text = getString(R.string.by_initial)
                 1 -> tab.text = getString(R.string.by_generation)
@@ -49,54 +104,33 @@ class ScheduleFragment : Fragment() {
             }
         }.attach()
 
+        etDate.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                println(s.toString())
+                jobListPagerAdapter.updateDate(s.toString())
+            }
 
-        fetchAssistant();
-        return vBinding.root
-    }
+            override fun afterTextChanged(s: Editable?) {}
+        })
 
-    private fun fetchAssistant() {
-        val sharedPreferences = requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
-        val accessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
-        CoroutineScope(Dispatchers.IO).launch {
-            val timeoutDuration = 10_000L
-            try {
-                val response: List<Schedule>? = withTimeoutOrNull(timeoutDuration) {
-                    NetworkUtils.apiService.getClassTransactionByAssistantUsername(
-                        "Bearer $accessToken",
-                        "PP24-1"
-                    )
-                }
+        shiftSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                selectedShift = parent.getItemAtPosition(position).toString()
+                jobListPagerAdapter.updateShift(selectedShift)
+            }
 
-                withContext(Dispatchers.Main) {
-                    if (response == null) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Request timed out or failed. Please try again.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else if (response.isEmpty()) {
-                        Toast.makeText(
-                            requireContext(),
-                            "No college transactions found.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-//                        schedules.clear()
-//                        schedules.addAll(response)
-//                        homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
-//                        viewPager.adapter = homePagerAdapter
-//                        homePagerAdapter.notifyDataSetChanged()
-                        println("College Schedule: $response")
-                    }
-                }
-
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(), "Failed to get college transactions", Toast.LENGTH_SHORT).show()
-                }
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+                jobListPagerAdapter.updateShift("1")
             }
         }
-    }
 
+        return vBinding.root
+    }
 }

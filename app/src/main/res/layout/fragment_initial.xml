@@ -13,6 +13,7 @@
         tools:ignore="UselessParent">
 
         <EditText
+            android:id="@+id/etInitial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autofillHints=""
@@ -25,6 +26,7 @@
 
 
         <Button
+            android:id="@+id/btnView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/view"
@@ -37,6 +39,7 @@
             />
 
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSchedule"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </LinearLayout>

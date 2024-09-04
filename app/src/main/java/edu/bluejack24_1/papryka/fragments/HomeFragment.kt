@@ -15,9 +15,11 @@ import edu.bluejack24_1.papryka.adapters.HomePagerAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentHomeBinding
 import edu.bluejack24_1.papryka.models.CollegeSchedule
 import edu.bluejack24_1.papryka.models.Schedule
+import edu.bluejack24_1.papryka.models.processCollegeSchedule
 import edu.bluejack24_1.papryka.utils.NetworkUtils
 import edu.bluejack24_1.papryka.utils.getDateRange
 import edu.bluejack24_1.papryka.utils.getDayOfWeek
+import edu.bluejack24_1.papryka.utils.getShiftNumber
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -99,48 +101,51 @@ class HomeFragment : Fragment() {
 
 
     private fun fetchClassTransaction(username: String, accessToken: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val timeoutDuration = 10_000L
-            try {
-                val response: List<Schedule>? = withTimeoutOrNull(timeoutDuration) {
-                    NetworkUtils.apiService.getClassTransactionByAssistantUsername(
-                        "Bearer $accessToken",
-                        username
-                    )
-                }
-
-                withContext(Dispatchers.Main) {
-                    if (response == null) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Request timed out or failed. Please try again.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else if (response.isEmpty()) {
-                        Toast.makeText(
-                            requireContext(),
-                            "No teaching transactions found.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        response.forEach {
-                            it.Type = "Teaching"
-                            schedules.add(it)
-                        }
-                        homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
-                        viewPager.adapter = homePagerAdapter
-                        homePagerAdapter.notifyDataSetChanged()
-
+        if (isAdded) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val timeoutDuration = 10_000L
+                try {
+                    val response: List<Schedule>? = withTimeoutOrNull(timeoutDuration) {
+                        NetworkUtils.apiService.getClassTransactionByAssistantUsername(
+                            "Bearer $accessToken",
+                            username
+                        )
                     }
-                }
 
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        requireContext(),
-                        "Failed to get class transactions",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    withContext(Dispatchers.Main) {
+                        if (response == null) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Request timed out or failed. Please try again.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else if (response.isEmpty()) {
+                            Toast.makeText(
+                                requireContext(),
+                                "No teaching transactions found.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            response.forEach {
+                                it.Type = "Teaching"
+                                it.ShiftCode = getShiftNumber(it.Shift)
+                                schedules.add(it)
+                            }
+                            homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
+                            viewPager.adapter = homePagerAdapter
+                            homePagerAdapter.notifyDataSetChanged()
+
+                        }
+                    }
+
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Failed to get class transactions",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
         }
@@ -149,90 +154,53 @@ class HomeFragment : Fragment() {
     private fun fetchCollegeSchedule(nim: String, accessToken: String, timeframe: String) {
         val (startDate, endDate) = getDateRange(timeframe)
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val timeoutDuration = 10_000L
-            try {
-                val response: CollegeSchedule? = withTimeoutOrNull(timeoutDuration) {
-                    NetworkUtils.apiService.getStudentSchedule(
-                        "Bearer $accessToken",
-                        nim,
-                        "2024-09-09",
-                        "2024-09-20"
-                    )
-                }
+        if (isAdded) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val timeoutDuration = 20_000L
+                try {
+                    val response: CollegeSchedule? = withTimeoutOrNull(timeoutDuration) {
+                        NetworkUtils.apiService.getStudentSchedule(
+                            "Bearer $accessToken",
+                            nim,
+                            "2024-09-09",
+                            "2024-09-20"
+                        )
+                    }
 
-                withContext(Dispatchers.Main) {
-                    if (response == null) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Request timed out or failed. Please try again.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else if (response.isEmpty()) {
-                        Toast.makeText(
-                            requireContext(),
-                            "No college transactions found.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        processCollegeSchedule(response)
-                        homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
-                        viewPager.adapter = homePagerAdapter
-                        homePagerAdapter.notifyDataSetChanged()
-                        println("College Schedule: $response")
+                    withContext(Dispatchers.Main) {
+                        println("COllege" + response)
+                        if (response == null) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Request timed out or failed. Please try again.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else if (response.isEmpty()) {
+                            Toast.makeText(
+                                requireContext(),
+                                "No college transactions found.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            schedules.addAll(processCollegeSchedule(response))
+                            homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
+                            viewPager.adapter = homePagerAdapter
+                            homePagerAdapter.notifyDataSetChanged()
+                            println("College Schedule: $response")
+                        }
+                    }
+
+                } catch (e: Exception) {
+                    if (isAdded) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Failed to get college transactions",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 }
-
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        requireContext(),
-                        "Failed to get college transactions",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }
-    }
-
-    private fun processCollegeSchedule(response: CollegeSchedule) {
-        response.values.forEach { detail ->
-            detail.forEach {
-                val endTime = when (it.Shift) {
-                    1 -> "09:00"
-                    2 -> "11:00"
-                    3 -> "13:00"
-                    4 -> "15:00"
-                    5 -> "17:00"
-                    6 -> "19:00"
-                    7 -> "21:00"
-                    else -> ""
-                }
-
-                val startTime = when (it.Shift) {
-                    1 -> "07:20"
-                    2 -> "09:20"
-                    3 -> "11:20"
-                    4 -> "13:20"
-                    5 -> "15:20"
-                    6 -> "17:20"
-                    7 -> "19:20"
-                    else -> ""
-                }
-
-
-                val schedule = Schedule(
-                    "${it.CourseCode} - ${it.CourseName}",
-                    "",
-                    getDayOfWeek(it.StartDate),
-                    .0F,
-                    "$startTime - $endTime",
-                    it.Room,
-                    "College",
-                    ""
-                )
-
-                schedules.add(schedule)
             }
         }
     }
