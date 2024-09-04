@@ -7,7 +7,6 @@ import edu.bluejack24_1.papryka.fragments.CasemakingFragment
 import edu.bluejack24_1.papryka.fragments.CorrectionFragment
 import edu.bluejack24_1.papryka.models.Casemaking
 import edu.bluejack24_1.papryka.models.Correction
-import edu.bluejack24_1.papryka.models.Schedule
 
 class JobListPagerAdapter(fa: FragmentActivity, private val corrections: MutableList<Correction>, private val casemakings: MutableList<Casemaking>): FragmentStateAdapter(fa) {
     override fun getItemCount(): Int {
