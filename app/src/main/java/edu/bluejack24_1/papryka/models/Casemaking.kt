@@ -16,25 +16,4 @@ data class Casemaking(
     val isCaseMaking: Boolean
         get() = JobType == "Case Making"
 
-    //masi error
-    fun getDescription(description: String): String {
-        println(description)
-        val words = description.split(" ")
-        println(words)
-        return if (words.size >= 2) {
-            words[words.size - 2]
-        } else {
-            "Unknown"
-        }
-    }
-
-    fun getVariation(description: String): String {
-        val words = description.split(" ")
-        return if (words.isNotEmpty()) {
-            words.last()
-        } else {
-            "Unknown"
-        }
-    }
-
 }
