@@ -91,10 +91,6 @@ class LoginActivity : AppCompatActivity() {
                         } else {
                             Toast.makeText(this@LoginActivity, "Access token not found", Toast.LENGTH_SHORT).show()
                         }
-
-//                        val intentToHome = Intent(this@LoginActivity, MainActivity::class.java)
-//                        startActivity(intentToHome)
-//                        finish()
                     }
 
                     override fun onAuthenticationFailed() {
@@ -110,7 +106,14 @@ class LoginActivity : AppCompatActivity() {
                     .build()
 
                 binding.btnBiometric.setOnClickListener {
-                    biometricPrompt.authenticate(promptInfo)
+                    val sharedPreferences = getSharedPreferences("AppPreference", MODE_PRIVATE)
+                    val accessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
+
+                    if (accessToken != null) {
+                        biometricPrompt.authenticate(promptInfo)
+                    } else {
+                        Toast.makeText(this@LoginActivity, "You have to login at least once", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
             BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {

@@ -6,5 +6,5 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class AssistantSchedule(
     val initial: String,
-    val schedule: Schedule
+    var schedule: Schedule
 ) : Parcelable

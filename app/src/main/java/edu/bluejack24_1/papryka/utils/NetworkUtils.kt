@@ -91,6 +91,11 @@ object NetworkUtils {
             @Header("Authorization") token: String,
             @Query("courseOutlineId") courseOutlineId: String = "965b6b1a-e431-e611-903a-d8d385fce79e"
         ): TeachingDetailResponse
+
+        @GET("Assistant/GetAssistantRoles")
+        suspend fun getAssistantRoles(
+            @Query("username") username: String
+        ): List<String>
     }
 
     val apiService: ApiService by lazy { retrofit.create(ApiService::class.java) }
