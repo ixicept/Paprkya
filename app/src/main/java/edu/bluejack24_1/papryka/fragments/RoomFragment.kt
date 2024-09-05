@@ -8,22 +8,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import edu.bluejack24_1.papryka.R
 import edu.bluejack24_1.papryka.adapters.RoomAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentRoomBinding
 import edu.bluejack24_1.papryka.models.StatusDetail
-import edu.bluejack24_1.papryka.utils.NetworkUtils
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import edu.bluejack24_1.papryka.viewmodels.RoomViewModel
 import java.util.Locale
 
 class RoomFragment : Fragment() {
@@ -36,6 +33,7 @@ class RoomFragment : Fragment() {
 
     private val roomList: MutableList<StatusDetail> = mutableListOf()
     private lateinit var roomAdapter: RoomAdapter
+    private val roomViewModel: RoomViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,26 +42,9 @@ class RoomFragment : Fragment() {
         vBinding = FragmentRoomBinding.inflate(inflater, container, false)
 
         val shiftSpinner = vBinding.spShift
-
-        ArrayAdapter.createFromResource(
-            requireContext(),
-            R.array.shifts,
-            android.R.layout.simple_spinner_item
-        ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            shiftSpinner.adapter = adapter
-        }
-
         val campusSpinner = vBinding.spCampus
 
-        ArrayAdapter.createFromResource(
-            requireContext(),
-            R.array.campuses,
-            android.R.layout.simple_spinner_item
-        ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            campusSpinner.adapter = adapter
-        }
+        setupSpinners(shiftSpinner, campusSpinner)
 
         dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         etDate = vBinding.etDate
@@ -73,25 +54,67 @@ class RoomFragment : Fragment() {
 
         btnView.setOnClickListener {
             val date = etDate.text.toString()
-            val shift = shiftSpinner.selectedItem.toString()
+            val shift = shiftSpinner.selectedItem.toString().toInt()
             val campus = campusSpinner.selectedItem.toString()
             val unapproved = vBinding.cbUnapproved.isChecked
             val onsite = vBinding.cbOnsite.isChecked
 
-            fetchRoomTransactions(date, shift.toInt(), campus, unapproved, onsite)
+            val shiftCol = mapShiftToColumn(shift)
+            val campusCode = mapCampusToCode(campus)
+
+            val accessToken = getAccessToken()
+            if (accessToken != null) {
+                roomViewModel.fetchRoomTransactions(
+                    accessToken,
+                    date,
+                    shiftCol,
+                    campusCode,
+                    unapproved
+                )
+            } else {
+                Toast.makeText(requireContext(), "Access token not found", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
+        roomViewModel.roomList.observe(viewLifecycleOwner) { rooms ->
+            roomAdapter = RoomAdapter(rooms)
+            vBinding.rvRoom.adapter = roomAdapter
+            vBinding.rvRoom.layoutManager = LinearLayoutManager(context)
+            vBinding.rvRoom.setHasFixedSize(true)
+            roomAdapter.notifyDataSetChanged()
+        }
+
+        roomViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+            errorMessage?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+            }
         }
 
         return vBinding.root
     }
 
-    private fun fetchRoomTransactions(date: String, shift: Int, campus: String, unapproved: Boolean, onsite: Boolean) {
-        val sharedPreferences =
-            requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
-        val accessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
-        // note: di room transaction bagian status detail, [] itu berarti kosong, terus kalo room terus [] terus room lagi artinya [] itu kek spasinya gitu
-        // [] [] [] -> cuma yang tengah doang kosong yang lain cuman spasi
+    private fun setupSpinners(shiftSpinner: Spinner, campusSpinner: Spinner) {
+        ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.shifts,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            shiftSpinner.adapter = adapter
+        }
 
-        val shiftCol = when (shift) {
+        ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.campuses,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            campusSpinner.adapter = adapter
+        }
+    }
+
+    private fun mapShiftToColumn(shift: Int): Int {
+        return when (shift) {
             1 -> 1
             2 -> 3
             3 -> 5
@@ -101,8 +124,10 @@ class RoomFragment : Fragment() {
             7 -> 12
             else -> 0
         }
+    }
 
-        val campusCode = when (campus) {
+    private fun mapCampusToCode(campus: String): String {
+        return when (campus) {
             "Anggrek" -> "ANGGREK"
             "Syahdan" -> "SYAHDAN"
             "Kijang" -> "KIJANG"
@@ -113,51 +138,12 @@ class RoomFragment : Fragment() {
             "Semarang" -> "SEMARANG"
             else -> "ANGGREK"
         }
+    }
 
-        if (accessToken != null) {
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val roomTransactions = NetworkUtils.apiService.getRoomTransactions(
-                        "Bearer $accessToken",
-                        date,
-                        date,
-                        unapproved
-                    )
-                    withContext(Dispatchers.Main) {
-                        roomList.clear()
-                        roomTransactions.Details.forEach { details ->
-                            if (details.Campus == campusCode) {
-                                if (details.StatusDetails[shiftCol].isNotEmpty()) {
-                                    details.StatusDetails[shiftCol].forEach {
-                                        it.RoomName = details.RoomName
-                                        roomList.add(it)
-                                    }
-                                } else {
-                                    val emptyStatusDetail = StatusDetail(Description = "Available", RoomName = details.RoomName)
-                                    roomList.add(emptyStatusDetail)
-                                }
-                            }
-                        }
-
-                        roomAdapter = RoomAdapter(roomList)
-                        vBinding.rvRoom.adapter = roomAdapter
-                        vBinding.rvRoom.layoutManager = LinearLayoutManager(context)
-                        vBinding.rvRoom.setHasFixedSize(true)
-                        roomAdapter.notifyDataSetChanged()
-                    }
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Failed to get room transactions",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            }
-        } else {
-            Toast.makeText(requireContext(), "Access token not found", Toast.LENGTH_SHORT).show()
-        }
+    private fun getAccessToken(): String? {
+        val sharedPreferences =
+            requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
+        return sharedPreferences.getString("ACCESS_TOKEN", null)
     }
 
     private fun showDateDialog() {

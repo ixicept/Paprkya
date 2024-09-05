@@ -8,26 +8,24 @@ import android.widget.ExpandableListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import edu.bluejack24_1.papryka.R
 import edu.bluejack24_1.papryka.adapters.CourseOutlineListAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentTeachingDetailBinding
 import edu.bluejack24_1.papryka.models.Schedule
-import edu.bluejack24_1.papryka.models.TeachingDetailResponse
-import edu.bluejack24_1.papryka.utils.NetworkUtils
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
+import edu.bluejack24_1.papryka.viewmodels.CourseOutlineViewModel
 
 class TeachingDetailFragment : Fragment() {
 
     private lateinit var vBinding: FragmentTeachingDetailBinding
 
     private lateinit var expandableListView: ExpandableListView
-    private lateinit var expandableListDetail: HashMap<String, List<String>>
     private lateinit var expandableListTitle: List<String>
     private lateinit var expandableListAdapter: CourseOutlineListAdapter
+
+    private val courseOutlineViewModel: CourseOutlineViewModel by viewModels()
+
 
     private lateinit var schedule: Schedule
 
@@ -58,8 +56,36 @@ class TeachingDetailFragment : Fragment() {
             requireActivity().supportFragmentManager.popBackStack()
         }
 
+        observeViewModel()
         fetchDetail()
         return vBinding.root
+    }
+
+    private fun observeViewModel() {
+        courseOutlineViewModel.courseOutlineDetails.observe(viewLifecycleOwner, Observer { details ->
+            if (details != null) {
+                val expandableListTitle = ArrayList(details.keys)
+                expandableListAdapter = CourseOutlineListAdapter(requireActivity(), expandableListTitle, details)
+                expandableListView.setAdapter(expandableListAdapter)
+            }
+        })
+
+        courseOutlineViewModel.errorMessage.observe(viewLifecycleOwner, Observer { errorMessage ->
+            errorMessage?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun fetchDetail() {
+        val sharedPreferences = requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
+        val accessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
+
+        if (accessToken != null) {
+            courseOutlineViewModel.fetchCourseOutlineDetails(accessToken, schedule.CourseOutlineId)
+        } else {
+            Toast.makeText(requireContext(), "Access token not found", Toast.LENGTH_SHORT).show()
+        }
     }
 
     companion object {
@@ -73,93 +99,5 @@ class TeachingDetailFragment : Fragment() {
             return fragment
         }
     }
-
-    private fun getData(): HashMap<String, List<String>> {
-        val expandableListDetail = HashMap<String, List<String>>()
-
-        // Session 1 - No child items based on image
-        val session1 = listOf<String>() // Empty list as there's no detail shown in the image
-
-        // Session 2 - List of topics related to DNA Composition Analysis
-        val session2 = listOf(
-            "GC and AT Composition on DNA",
-            "Melting Point of DNA",
-            "Nucleotide Molecular Weight"
-        )
-
-        // Session 3 - No child items based on image
-        val session3 = listOf<String>() // Empty list as there's no detail shown in the image
-
-        // Session 4 - No child items based on image
-        val session4 = listOf<String>() // Empty list as there's no detail shown in the image
-
-        // Session 5 - No child items based on image
-        val session5 = listOf<String>() // Empty list as there's no detail shown in the image
-
-        // Session 6 - No child items based on image
-        val session6 = listOf<String>() // Empty list as there's no detail shown in the image
-
-        // Adding the sessions and their corresponding topics to the HashMap
-        expandableListDetail["Session 1"] = session1
-        expandableListDetail["Session 2"] = session2
-        expandableListDetail["Session 3"] = session3
-        expandableListDetail["Session 4"] = session4
-        expandableListDetail["Session 5"] = session5
-        expandableListDetail["Session 6"] = session6
-
-        return expandableListDetail
-    }
-
-    private fun fetchDetail(){
-        val sharedPreferences = requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
-        val accessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
-
-        CoroutineScope(Dispatchers.IO).launch {
-            val timeoutDuration = 10_000L
-            try {
-                val response: TeachingDetailResponse? = withTimeoutOrNull(timeoutDuration) {
-                    NetworkUtils.apiService.getCourseOutlineDetail(
-                        "Bearer $accessToken",
-                        schedule.CourseOutlineId
-                    )
-                }
-
-                withContext(Dispatchers.Main) {
-                    if (response == null) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Request timed out or failed. Please try again.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }  else {
-                        val expandableListDetail = HashMap<String, List<String>>()
-
-                        response.Laboratory.forEach { session ->
-                            val title = "Session ${session.Session}: ${session.Topics}"
-                            expandableListDetail[title] = session.SubTopics.map { subTopic -> subTopic.Value }
-                        }
-
-                        val sortedExpandableListDetail = expandableListDetail.entries
-                            .sortedBy { entry ->
-                                entry.key.substringAfter("Session ").substringBefore(":").trim().toIntOrNull() ?: Int.MAX_VALUE
-                            }.associate { it.toPair() }
-
-                        println(sortedExpandableListDetail)
-
-                        expandableListTitle = ArrayList(sortedExpandableListDetail.keys)
-                        expandableListAdapter = CourseOutlineListAdapter(requireActivity(), expandableListTitle, sortedExpandableListDetail)
-                        expandableListView.setAdapter(expandableListAdapter)
-                    }
-                }
-
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    println(e)
-                    Toast.makeText(requireContext(), "Failed to get Teaching Detail transactions", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-
 
 }

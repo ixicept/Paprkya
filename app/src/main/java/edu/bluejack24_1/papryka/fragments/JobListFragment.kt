@@ -62,14 +62,12 @@ class JobListFragment : Fragment() {
 
             jobListViewModel.casemakings.observe(viewLifecycleOwner) { casemakings ->
                 casemakings?.let {
-                    println("ini casemaking $it")
                     updateCasemakingData(it)
                 }
             }
 
             jobListViewModel.corrections.observe(viewLifecycleOwner) { corrections ->
                 corrections?.let {
-                    println("ini correction $it")
                     updateCorrectionData(it)
                 }
             }

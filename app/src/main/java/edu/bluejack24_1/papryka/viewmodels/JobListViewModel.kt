@@ -1,5 +1,3 @@
-
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,6 +7,7 @@ import edu.bluejack24_1.papryka.models.Correction
 import edu.bluejack24_1.papryka.utils.NetworkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
 
 class JobListViewModel : ViewModel() {
 
@@ -24,7 +23,7 @@ class JobListViewModel : ViewModel() {
                 val casemaking = NetworkUtils.apiService.getJobsAssistant("Bearer $accessToken")
                 _casemakings.postValue(casemaking)
             } catch (e: Exception) {
-                Log.e("JobListViewModel", "Failed to fetch casemaking", e)
+                println("Failed to fetch casemaking $e" )
             }
         }
     }
@@ -35,7 +34,7 @@ class JobListViewModel : ViewModel() {
                 val correction = NetworkUtils.apiService.getCorrectionSchedules("Bearer $accessToken")
                 _corrections.postValue(correction)
             } catch (e: Exception) {
-                Log.e("JobListViewModel", "Failed to fetch correction", e)
+                println("Failed to fetch correction $e" )
             }
         }
     }
