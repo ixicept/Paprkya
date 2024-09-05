@@ -63,15 +63,14 @@ abstract class ScheduleBaseFragment : Fragment() {
         vBinding.rvSchedule.layoutManager = LinearLayoutManager(requireContext())
 
         vBinding.btnView.setOnClickListener {
-            initials.clear()
             astSchedules.clear()
             schedulesLiveData.value = emptyList()
             getInitials()
             initSchedules()
             initials.forEach {
                 fetchAssistantClassTransaction(it, accessToken)
-                fetchCollegeSchedule(it, accessToken, date!!)
             }
+            println(schedulesLiveData.value)
         }
 
         schedulesLiveData.observe(viewLifecycleOwner, Observer { schedules ->
@@ -155,6 +154,7 @@ abstract class ScheduleBaseFragment : Fragment() {
                             Toast.LENGTH_SHORT
                         ).show()
                     } else {
+                        println("test")
                         schedules.clear()
 
                         response.forEach {

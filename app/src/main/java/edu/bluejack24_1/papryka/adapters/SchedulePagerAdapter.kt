@@ -19,6 +19,7 @@ class SchedulePagerAdapter(
 ) : FragmentStateAdapter(fa) {
 
     private var initialFragment: InitialFragment? = null
+    private var generationFragment: GenerationFragment? = null
 
     override fun getItemCount(): Int {
         return 3
@@ -30,7 +31,10 @@ class SchedulePagerAdapter(
                 initialFragment = InitialFragment.newInstance(date, day, shift, midCode)
                 initialFragment!!
             }
-            1 -> GenerationFragment()
+            1 -> {
+                generationFragment = GenerationFragment.newInstance(date, day, shift, midCode)
+                generationFragment!!
+            }
             2 -> PositionFragment()
 
             else -> InitialFragment.newInstance(date, day, shift, midCode)
@@ -40,10 +44,12 @@ class SchedulePagerAdapter(
 
     fun updateDate(newDate: String) {
         initialFragment?.updateDate(newDate)
+        generationFragment?.updateDate(newDate)
     }
 
     fun updateShift(newShift: String) {
         initialFragment?.updateShift(newShift)
+        generationFragment?.updateShift(newShift)
     }
 
 }

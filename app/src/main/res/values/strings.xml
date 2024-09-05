@@ -86,27 +86,27 @@
         <item>Semarang</item>
     </string-array>
     <string-array name="generations">
-        <item>13&#8211;0</item>
-        <item>14&#8211;0</item>
-        <item>15&#8211;2</item>
-        <item>16&#8211;1</item>
-        <item>16&#8211;2</item>
-        <item>17&#8211;1</item>
-        <item>17&#8211;2</item>
-        <item>18&#8211;1</item>
-        <item>18&#8211;2</item>
-        <item>19&#8211;1</item>
-        <item>19&#8211;2</item>
-        <item>20&#8211;1</item>
-        <item>20&#8211;2</item>
-        <item>21&#8211;1</item>
-        <item>21&#8211;2</item>
-        <item>22&#8211;1</item>
-        <item>22&#8211;2</item>
-        <item>23&#8211;1</item>
-        <item>23&#8211;2</item>
-        <item>24&#8211;1</item>
-        <item>24&#8211;2</item>
+        <item>13-0</item>
+        <item>14-0</item>
+        <item>15-2</item>
+        <item>16-1</item>
+        <item>16-2</item>
+        <item>17-1</item>
+        <item>17-2</item>
+        <item>18-1</item>
+        <item>18-2</item>
+        <item>19-1</item>
+        <item>19-2</item>
+        <item>20-1</item>
+        <item>20-2</item>
+        <item>21-1</item>
+        <item>21-2</item>
+        <item>22-1</item>
+        <item>22-2</item>
+        <item>23-1</item>
+        <item>23-2</item>
+        <item>24-1</item>
+        <item>24-2</item>
     </string-array>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

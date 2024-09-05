@@ -1,4 +1,4 @@
-
+package edu.bluejack24_1.papryka.viewmodels
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -24,7 +24,7 @@ class JobListViewModel : ViewModel() {
                 val casemaking = NetworkUtils.apiService.getJobsAssistant("Bearer $accessToken")
                 _casemakings.postValue(casemaking)
             } catch (e: Exception) {
-                Log.e("JobListViewModel", "Failed to fetch casemaking", e)
+                Log.e("edu.bluejack24_1.papryka.viewmodels.JobListViewModel", "Failed to fetch casemaking", e)
             }
         }
     }
@@ -35,7 +35,7 @@ class JobListViewModel : ViewModel() {
                 val correction = NetworkUtils.apiService.getCorrectionSchedules("Bearer $accessToken")
                 _corrections.postValue(correction)
             } catch (e: Exception) {
-                Log.e("JobListViewModel", "Failed to fetch correction", e)
+                Log.e("edu.bluejack24_1.papryka.viewmodels.JobListViewModel", "Failed to fetch correction", e)
             }
         }
     }

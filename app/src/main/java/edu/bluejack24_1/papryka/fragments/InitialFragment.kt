@@ -2,6 +2,7 @@ package edu.bluejack24_1.papryka.fragments
 
 class InitialFragment : ScheduleBaseFragment() {
     override fun getInitials() {
+        initials.clear()
         val etInitial = vBinding.etInitial
         val parts = etInitial.text.toString().trim().split(";")
         initials.addAll(parts)

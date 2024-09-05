@@ -81,8 +81,7 @@ object NetworkUtils {
 
         @GET("Assistant")
         suspend fun getAssistantByGeneration(
-            @Header("Authorization") token: String,
-            @Query("initial") initial: String = "", //ini default value
+            @Query("initial") username: String ="", //ini default value
             @Query("generation") generation: String ="24-1", //ini default value
         ): List<User>
 

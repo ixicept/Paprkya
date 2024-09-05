@@ -15,14 +15,16 @@
         <Spinner
             android:id="@+id/spGeneration"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/edit_text_background"
             android:fontFamily="@font/ubuntu"
             android:textColor="@color/black"
             android:textSize="14sp"
+            android:padding="16dp"
             android:layout_marginBottom="8dp"/>
 
         <Button
+            android:id="@+id/btnView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/view"
@@ -35,6 +37,7 @@
             />
 
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSchedule"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </LinearLayout>

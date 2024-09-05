@@ -1,6 +1,6 @@
 package edu.bluejack24_1.papryka.fragments
 
-import JobListViewModel
+import edu.bluejack24_1.papryka.viewmodels.JobListViewModel
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
