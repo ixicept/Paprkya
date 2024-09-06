@@ -14,10 +14,10 @@ import edu.bluejack24_1.papryka.models.Schedule
 import edu.bluejack24_1.papryka.utils.getDayFromInt
 import java.time.LocalDate
 
-class DayOfWeekScheduleAdapter(private val scheduleList: Map<String, List<Schedule>>) :
-    RecyclerView.Adapter<DayOfWeekScheduleAdapter.DayOfWeekScheduleViewHolder>() {
-
-    private lateinit var binding: CardDayOfWeekBinding
+class DayOfWeekScheduleAdapter(
+    private val scheduleList: Map<String, List<Schedule>>,
+    private val onItemClickCallback: ScheduleAdapter.IOnItemClickCallback
+) : RecyclerView.Adapter<DayOfWeekScheduleAdapter.DayOfWeekScheduleViewHolder>() {
 
     class DayOfWeekScheduleViewHolder(private val binding: CardDayOfWeekBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -25,53 +25,31 @@ class DayOfWeekScheduleAdapter(private val scheduleList: Map<String, List<Schedu
         fun bind(day: Int, schedules: List<Schedule>, onItemClickCallback: ScheduleAdapter.IOnItemClickCallback) {
             binding.tvDay.text = getDayFromInt(binding.root.context, day)
 
-            if (schedules.isEmpty()) {
-                binding.tvNoSchedule.visibility = View.VISIBLE
-            } else {
-                binding.tvNoSchedule.visibility = View.GONE
-            }
+            binding.tvNoSchedule.visibility = if (schedules.isEmpty()) View.VISIBLE else View.GONE
 
             val sortedSchedules = schedules.sortedBy { it.ShiftCode }
 
-            println(schedules)
-
-            val scheduleAdapter = ScheduleAdapter(sortedSchedules)
-            scheduleAdapter.setOnItemClickCallback(onItemClickCallback)
-            binding.rvSchedule.adapter = scheduleAdapter
-            binding.rvSchedule.layoutManager = GridLayoutManager(binding.root.context, 1)
-            binding.rvSchedule.setHasFixedSize(true)
+            val scheduleAdapter = ScheduleAdapter(sortedSchedules).apply {
+                setOnItemClickCallback(onItemClickCallback)
+            }
+            binding.rvSchedule.apply {
+                adapter = scheduleAdapter
+                layoutManager = GridLayoutManager(binding.root.context, 1)
+                setHasFixedSize(true)
+            }
         }
-
     }
 
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayOfWeekScheduleViewHolder {
-        binding = CardDayOfWeekBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = CardDayOfWeekBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return DayOfWeekScheduleViewHolder(binding)
     }
 
-    override fun getItemCount(): Int {
-        return 6
-    }
+    override fun getItemCount(): Int = 6
 
     override fun onBindViewHolder(holder: DayOfWeekScheduleViewHolder, position: Int) {
-        val schedules = scheduleList[(position + 1).toString()] ?: emptyList()
-
-        holder.bind(position + 1, schedules, object : ScheduleAdapter.IOnItemClickCallback {
-            override fun onItemClicked(schedule: Schedule) {
-                if (schedule.Type == "College") return
-                (holder.itemView.context as? AppCompatActivity)?.let { activity ->
-                    val detailFragment = TeachingDetailFragment.newInstance(schedule)
-                    activity.supportFragmentManager.beginTransaction()
-                        .add(R.id.fragmentContainer, detailFragment)
-                        .addToBackStack(null)
-                        .commit()
-                }
-            }
-        })
+        val day = position + 1
+        val schedules = scheduleList[day.toString()] ?: emptyList()
+        holder.bind(day, schedules, onItemClickCallback)
     }
-
-
-
-
 }

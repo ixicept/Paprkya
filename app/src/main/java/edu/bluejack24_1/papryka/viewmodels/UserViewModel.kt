@@ -28,6 +28,15 @@ class UserViewModel : ViewModel() {
     private val _loginError = MutableLiveData<String>()
     val loginError: LiveData<String> get() = _loginError
 
+    private val _errorMessage = MutableLiveData<String>()
+    val errorMessage: LiveData<String> get() = _errorMessage
+
+    private val _initial = MutableLiveData<String>()
+    val initial: LiveData<String> get() = _initial
+
+    private val _nim = MutableLiveData<String>()
+    val nim: LiveData<String> get() = _nim
+
     private val _biometricError = MutableLiveData<String?>()
     val biometricError: LiveData<String?> get() = _biometricError
 
@@ -94,13 +103,14 @@ class UserViewModel : ViewModel() {
         biometricPrompt.authenticate(promptInfo)
     }
 
-    private fun fetchUserInformation(accessToken: String) {
+    fun fetchUserInformation(accessToken: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = NetworkUtils.apiService.getUserInfo("Bearer $accessToken")
-                // Handle successful user info retrieval
+                _initial.postValue(response.Username)
+                _nim.postValue(response.BinusianNumber)
             } catch (e: Exception) {
-                _loginError.postValue("Failed to get user information")
+                _errorMessage.postValue("Failed to get user information")
             }
         }
     }

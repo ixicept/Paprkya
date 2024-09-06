@@ -18,44 +18,45 @@ class ThisWeekFragment : Fragment() {
 
     private lateinit var schedules: List<Schedule>
     private lateinit var vBinding: FragmentThisWeekBinding
+    private lateinit var dayScheduleMap: Map<String, List<Schedule>>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             schedules = it.getParcelableArrayList(ARG_SCHEDULES) ?: emptyList()
         }
+        dayScheduleMap = schedules.groupBy { it.Day.toString() }.toSortedMap()
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         vBinding = FragmentThisWeekBinding.inflate(inflater, container, false)
 
-        val dayScheduleMap: Map<String, List<Schedule>> = schedules.groupBy { it.Day.toString() }
-        dayScheduleMap.toSortedMap()
+        setupRecyclerView()
 
-        val dayOfWeekScheduleAdapter = DayOfWeekScheduleAdapter(dayScheduleMap)
+        return vBinding.root
+    }
 
-        vBinding.rvThisWeek.adapter = dayOfWeekScheduleAdapter
-        vBinding.rvThisWeek.layoutManager = LinearLayoutManager(context)
-        vBinding.rvThisWeek.setHasFixedSize(true)
-
-        val scheduleAdapter = ScheduleAdapter(schedules)
-
-        scheduleAdapter.setOnItemClickCallback(object : ScheduleAdapter.IOnItemClickCallback {
+    private fun setupRecyclerView() {
+        val dayOfWeekScheduleAdapter = DayOfWeekScheduleAdapter(dayScheduleMap, object : ScheduleAdapter.IOnItemClickCallback {
             override fun onItemClicked(schedule: Schedule) {
-                val detailFragment = TeachingDetailFragment.newInstance(schedule)
+                if (schedule.Type == "College") return
 
+                val detailFragment = TeachingDetailFragment.newInstance(schedule)
                 requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragmentContainer, detailFragment)
+                    .add(R.id.fragmentContainer, detailFragment)
                     .addToBackStack(null)
                     .commit()
             }
         })
 
-        return vBinding.root
+        vBinding.rvThisWeek.apply {
+            adapter = dayOfWeekScheduleAdapter
+            layoutManager = LinearLayoutManager(context)
+            setHasFixedSize(true)
+        }
     }
 
     companion object {
@@ -63,11 +64,11 @@ class ThisWeekFragment : Fragment() {
 
         fun newInstance(schedules: List<Schedule>): ThisWeekFragment {
             val fragment = ThisWeekFragment()
-            val args = Bundle()
-            args.putParcelableArrayList(ARG_SCHEDULES, ArrayList(schedules))
+            val args = Bundle().apply {
+                putParcelableArrayList(ARG_SCHEDULES, ArrayList(schedules))
+            }
             fragment.arguments = args
             return fragment
         }
     }
-
 }

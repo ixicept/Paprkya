@@ -7,32 +7,20 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.tabs.TabLayout
+import androidx.fragment.app.viewModels
 import com.google.android.material.tabs.TabLayoutMediator
 import edu.bluejack24_1.papryka.R
 import edu.bluejack24_1.papryka.adapters.HomePagerAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentHomeBinding
-import edu.bluejack24_1.papryka.models.CollegeSchedule
-import edu.bluejack24_1.papryka.models.Schedule
-import edu.bluejack24_1.papryka.models.processCollegeSchedule
-import edu.bluejack24_1.papryka.utils.NetworkUtils
-import edu.bluejack24_1.papryka.utils.getDateRange
-import edu.bluejack24_1.papryka.utils.getDayOfWeek
-import edu.bluejack24_1.papryka.utils.getShiftNumber
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
+import edu.bluejack24_1.papryka.viewmodels.HomeViewModel
+import edu.bluejack24_1.papryka.viewmodels.UserViewModel
 
 class HomeFragment : Fragment() {
 
     private lateinit var vBinding: FragmentHomeBinding
-    private lateinit var tabLayout: TabLayout;
-    private lateinit var viewPager: ViewPager2;
     private lateinit var homePagerAdapter: HomePagerAdapter
-    private val schedules = mutableListOf<Schedule>()
+    private val homeViewModel: HomeViewModel by viewModels()
+    private val userViewModel: UserViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,168 +28,59 @@ class HomeFragment : Fragment() {
     ): View? {
         vBinding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        tabLayout = vBinding.tabLayout
-        viewPager = vBinding.viewPager
+        homePagerAdapter = HomePagerAdapter(requireActivity(), mutableListOf())
+        vBinding.viewPager.adapter = homePagerAdapter
 
-        homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
-        viewPager.adapter = homePagerAdapter
-
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            when (position) {
-                0 -> tab.text = getString(R.string.today)
-                1 -> tab.text = getString(R.string.this_week)
-            }
-        }.attach()
-
+        setupTabLayout()
+        observeViewModel()
         fetchUserInformation()
 
         return vBinding.root
     }
 
+    private fun setupTabLayout() {
+        TabLayoutMediator(vBinding.tabLayout, vBinding.viewPager) { tab, position ->
+            when (position) {
+                0 -> tab.text = getString(R.string.today)
+                1 -> tab.text = getString(R.string.this_week)
+            }
+        }.attach()
+    }
+
+    private fun observeViewModel() {
+        homeViewModel.schedules.observe(viewLifecycleOwner) { schedules ->
+            homePagerAdapter = HomePagerAdapter(requireActivity(), schedules.toMutableList())
+            vBinding.viewPager.adapter = homePagerAdapter
+            homePagerAdapter.notifyDataSetChanged()
+        }
+
+        userViewModel.initial.observe(viewLifecycleOwner) { initial ->
+            vBinding.tvInitial.text = initial
+            homeViewModel.fetchClassTransaction(initial, getAccessToken())
+        }
+
+        userViewModel.nim.observe(viewLifecycleOwner) { nim ->
+            homeViewModel.fetchCollegeSchedule(nim, getAccessToken(), "today")
+        }
+
+        homeViewModel.errorMessage.observe(viewLifecycleOwner) { message ->
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun fetchUserInformation() {
-        val sharedPreferences =
-            requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
-        val accessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
+        val accessToken = getAccessToken()
 
         if (accessToken != null) {
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val response = NetworkUtils.apiService.getUserInfo("Bearer $accessToken")
-                    withContext(Dispatchers.Main) {
-                        if (isAdded) {
-                            val initial = response.Username
-                            val nim = response.BinusianNumber
-                            vBinding.tvInitial.text = initial
-                            println("User initial: $initial")
-                            println("User nim: $nim")
-                            schedules.clear()
-                            fetchCollegeSchedule(nim, accessToken, "weekly")
-                            fetchClassTransaction(initial, accessToken)
-                        }
-                    }
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        if (isAdded) {
-                            Toast.makeText(
-                                requireContext(),
-                                "Failed to get user information",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
-            }
+            userViewModel.fetchUserInformation(accessToken)
         } else {
-            if (isAdded) {
-                Toast.makeText(requireContext(), "Access token not found", Toast.LENGTH_SHORT)
-                    .show()
-            }
+            Toast.makeText(requireContext(), "Access token not found", Toast.LENGTH_SHORT).show()
         }
     }
 
-
-    private fun fetchClassTransaction(username: String, accessToken: String) {
-        if (isAdded) {
-            CoroutineScope(Dispatchers.IO).launch {
-                val timeoutDuration = 10_000L
-                try {
-                    val response: List<Schedule>? = withTimeoutOrNull(timeoutDuration) {
-                        NetworkUtils.apiService.getClassTransactionByAssistantUsername(
-                            "Bearer $accessToken",
-                            username
-                        )
-                    }
-
-                    withContext(Dispatchers.Main) {
-                        if (response == null) {
-                            Toast.makeText(
-                                requireContext(),
-                                "Request timed out or failed. Please try again.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else if (response.isEmpty()) {
-                            Toast.makeText(
-                                requireContext(),
-                                "No teaching transactions found.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else {
-                            response.forEach {
-                                it.Type = "Teaching"
-                                it.ShiftCode = getShiftNumber(it.Shift)
-                                schedules.add(it)
-                            }
-                            homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
-                            viewPager.adapter = homePagerAdapter
-                            homePagerAdapter.notifyDataSetChanged()
-
-                        }
-                    }
-
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Failed to get class transactions",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            }
-        }
-    }
-
-    private fun fetchCollegeSchedule(nim: String, accessToken: String, timeframe: String) {
-        val (startDate, endDate) = getDateRange(timeframe)
-
-        if (isAdded) {
-            CoroutineScope(Dispatchers.IO).launch {
-                val timeoutDuration = 20_000L
-                try {
-                    val response: CollegeSchedule? = withTimeoutOrNull(timeoutDuration) {
-                        NetworkUtils.apiService.getStudentSchedule(
-                            "Bearer $accessToken",
-                            nim,
-                            "2024-09-09",
-                            "2024-09-20"
-                        )
-                    }
-
-                    withContext(Dispatchers.Main) {
-                        println("COllege" + response)
-                        if (response == null) {
-                            Toast.makeText(
-                                requireContext(),
-                                "Request timed out or failed. Please try again.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else if (response.isEmpty()) {
-                            Toast.makeText(
-                                requireContext(),
-                                "No college transactions found.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else {
-                            schedules.addAll(processCollegeSchedule(response))
-                            homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
-                            viewPager.adapter = homePagerAdapter
-                            homePagerAdapter.notifyDataSetChanged()
-                            println("College Schedule: $response")
-                        }
-                    }
-
-                } catch (e: Exception) {
-                    if (isAdded) {
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(
-                                requireContext(),
-                                "Failed to get college transactions",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
-            }
-        }
+    private fun getAccessToken(): String {
+        val sharedPreferences =
+            requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
+        return sharedPreferences.getString("ACCESS_TOKEN", null) ?: ""
     }
 }
