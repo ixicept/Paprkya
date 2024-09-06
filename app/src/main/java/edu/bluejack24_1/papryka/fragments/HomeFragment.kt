@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -25,6 +26,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import edu.bluejack24_1.papryka.utils.getDateRange
+import edu.bluejack24_1.papryka.viewmodels.HomeViewModel
 
 class HomeFragment : Fragment() {
 
@@ -33,6 +36,9 @@ class HomeFragment : Fragment() {
     private lateinit var viewPager: ViewPager2;
     private lateinit var homePagerAdapter: HomePagerAdapter
     private val schedules = mutableListOf<Schedule>()
+
+    private val homeViewModel: HomeViewModel by viewModels()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,155 +59,46 @@ class HomeFragment : Fragment() {
             }
         }.attach()
 
-        fetchUserInformation()
+        observeViewModel()
+
+        fetchUserData()
 
         return vBinding.root
     }
 
-    private fun fetchUserInformation() {
-        val sharedPreferences =
-            requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
+    private fun observeViewModel() {
+        homeViewModel.userInitial.observe(viewLifecycleOwner) { initial ->
+            vBinding.tvInitial.text = initial
+        }
+
+        homeViewModel.schedules.observe(viewLifecycleOwner) { schedules ->
+            homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
+            viewPager.adapter = homePagerAdapter
+            homePagerAdapter.notifyDataSetChanged()
+        }
+
+        homeViewModel.errorMessage.observe(viewLifecycleOwner) { error ->
+            Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+    private fun fetchUserData() {
+        val sharedPreferences = requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
         val accessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
 
-        if (accessToken != null) {
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val response = NetworkUtils.apiService.getUserInfo("Bearer $accessToken")
-                    withContext(Dispatchers.Main) {
-                        if (isAdded) {
-                            val initial = response.Username
-                            val nim = response.BinusianNumber
-                            vBinding.tvInitial.text = initial
-                            println("User initial: $initial")
-                            println("User nim: $nim")
-                            schedules.clear()
-                            fetchCollegeSchedule(nim, accessToken, "weekly")
-                            fetchClassTransaction(initial, accessToken)
-                        }
-                    }
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        if (isAdded) {
-                            Toast.makeText(
-                                requireContext(),
-                                "Failed to get user information",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
+        accessToken?.let {
+            homeViewModel.fetchUserInformation(it)
+            homeViewModel.userInitial.observe(viewLifecycleOwner) { initial ->
+                homeViewModel.fetchClassTransaction(initial, it)
             }
-        } else {
-            if (isAdded) {
-                Toast.makeText(requireContext(), "Access token not found", Toast.LENGTH_SHORT)
-                    .show()
+            homeViewModel.nim.observe(viewLifecycleOwner) { nim ->
+                val (startDate, endDate) = getDateRange("weekly")
+                homeViewModel.fetchCollegeSchedule(nim, it, startDate, endDate)
             }
+        } ?: run {
+            Toast.makeText(requireContext(), "Access token not found", Toast.LENGTH_SHORT).show()
         }
     }
 
-
-    private fun fetchClassTransaction(username: String, accessToken: String) {
-        if (isAdded) {
-            CoroutineScope(Dispatchers.IO).launch {
-                val timeoutDuration = 10_000L
-                try {
-                    val response: List<Schedule>? = withTimeoutOrNull(timeoutDuration) {
-                        NetworkUtils.apiService.getClassTransactionByAssistantUsername(
-                            "Bearer $accessToken",
-                            username
-                        )
-                    }
-
-                    withContext(Dispatchers.Main) {
-                        if (response == null) {
-                            Toast.makeText(
-                                requireContext(),
-                                "Request timed out or failed. Please try again.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else if (response.isEmpty()) {
-                            Toast.makeText(
-                                requireContext(),
-                                "No teaching transactions found.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else {
-                            response.forEach {
-                                it.Type = "Teaching"
-                                it.ShiftCode = getShiftNumber(it.Shift)
-                                schedules.add(it)
-                            }
-                            homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
-                            viewPager.adapter = homePagerAdapter
-                            homePagerAdapter.notifyDataSetChanged()
-
-                        }
-                    }
-
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Failed to get class transactions",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            }
-        }
-    }
-
-    private fun fetchCollegeSchedule(nim: String, accessToken: String, timeframe: String) {
-        val (startDate, endDate) = getDateRange(timeframe)
-
-        if (isAdded) {
-            CoroutineScope(Dispatchers.IO).launch {
-                val timeoutDuration = 20_000L
-                try {
-                    val response: CollegeSchedule? = withTimeoutOrNull(timeoutDuration) {
-                        NetworkUtils.apiService.getStudentSchedule(
-                            "Bearer $accessToken",
-                            nim,
-                            "2024-09-09",
-                            "2024-09-20"
-                        )
-                    }
-
-                    withContext(Dispatchers.Main) {
-                        println("COllege" + response)
-                        if (response == null) {
-                            Toast.makeText(
-                                requireContext(),
-                                "Request timed out or failed. Please try again.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else if (response.isEmpty()) {
-                            Toast.makeText(
-                                requireContext(),
-                                "No college transactions found.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else {
-                            schedules.addAll(processCollegeSchedule(response))
-                            homePagerAdapter = HomePagerAdapter(requireActivity(), schedules)
-                            viewPager.adapter = homePagerAdapter
-                            homePagerAdapter.notifyDataSetChanged()
-                            println("College Schedule: $response")
-                        }
-                    }
-
-                } catch (e: Exception) {
-                    if (isAdded) {
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(
-                                requireContext(),
-                                "Failed to get college transactions",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
