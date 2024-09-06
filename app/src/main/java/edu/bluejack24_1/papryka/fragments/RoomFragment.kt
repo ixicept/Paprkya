@@ -20,6 +20,7 @@ import edu.bluejack24_1.papryka.R
 import edu.bluejack24_1.papryka.adapters.RoomAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentRoomBinding
 import edu.bluejack24_1.papryka.models.StatusDetail
+import edu.bluejack24_1.papryka.utils.showDateDialog
 import edu.bluejack24_1.papryka.viewmodels.RoomViewModel
 import java.util.Locale
 
@@ -48,7 +49,7 @@ class RoomFragment : Fragment() {
 
         dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         etDate = vBinding.etDate
-        etDate.setOnClickListener { showDateDialog() }
+        etDate.setOnClickListener { showDateDialog(requireActivity(), etDate, dateFormatter) }
 
         val btnView = vBinding.btnView
 
@@ -59,16 +60,13 @@ class RoomFragment : Fragment() {
             val unapproved = vBinding.cbUnapproved.isChecked
             val onsite = vBinding.cbOnsite.isChecked
 
-            val shiftCol = mapShiftToColumn(shift)
-            val campusCode = mapCampusToCode(campus)
-
             val accessToken = getAccessToken()
             if (accessToken != null) {
                 roomViewModel.fetchRoomTransactions(
                     accessToken,
                     date,
-                    shiftCol,
-                    campusCode,
+                    shift,
+                    campus,
                     unapproved
                 )
             } else {
@@ -113,54 +111,10 @@ class RoomFragment : Fragment() {
         }
     }
 
-    private fun mapShiftToColumn(shift: Int): Int {
-        return when (shift) {
-            1 -> 1
-            2 -> 3
-            3 -> 5
-            4 -> 7
-            5 -> 9
-            6 -> 11
-            7 -> 12
-            else -> 0
-        }
-    }
-
-    private fun mapCampusToCode(campus: String): String {
-        return when (campus) {
-            "Anggrek" -> "ANGGREK"
-            "Syahdan" -> "SYAHDAN"
-            "Kijang" -> "KIJANG"
-            "Alam Sutera" -> "ASM"
-            "Bandung" -> "BANDUNG"
-            "Bekasi" -> "BKSM"
-            "Malang" -> "MALANG"
-            "Semarang" -> "SEMARANG"
-            else -> "ANGGREK"
-        }
-    }
-
     private fun getAccessToken(): String? {
         val sharedPreferences =
             requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
         return sharedPreferences.getString("ACCESS_TOKEN", null)
-    }
-
-    private fun showDateDialog() {
-        val newCalendar: Calendar = Calendar.getInstance()
-        datePickerDialog = DatePickerDialog(
-            requireContext(),
-            OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                val newDate: Calendar = Calendar.getInstance()
-                newDate.set(year, monthOfYear, dayOfMonth)
-                etDate.text = dateFormatter.format(newDate.time)
-            },
-            newCalendar.get(Calendar.YEAR),
-            newCalendar.get(Calendar.MONTH),
-            newCalendar.get(Calendar.DAY_OF_MONTH)
-        )
-
-        datePickerDialog.show()
     }
 
 }

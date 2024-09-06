@@ -21,10 +21,13 @@ class RoomViewModel : ViewModel() {
     fun fetchRoomTransactions(
         accessToken: String,
         date: String,
-        shiftCol: Int,
-        campusCode: String,
+        shift: Int,
+        campus: String,
         unapproved: Boolean
     ) {
+        val shiftCol = mapShiftToColumn(shift)
+        val campusCode = mapCampusToCode(campus)
+
         CoroutineScope(Dispatchers.IO).launch() {
             try {
                 val roomTransactions = NetworkUtils.apiService.getRoomTransactions(
@@ -58,6 +61,33 @@ class RoomViewModel : ViewModel() {
                     _error.value = "Failed to get room transactions"
                 }
             }
+        }
+    }
+
+    private fun mapShiftToColumn(shift: Int): Int {
+        return when (shift) {
+            1 -> 1
+            2 -> 3
+            3 -> 5
+            4 -> 7
+            5 -> 9
+            6 -> 11
+            7 -> 12
+            else -> 0
+        }
+    }
+
+    private fun mapCampusToCode(campus: String): String {
+        return when (campus) {
+            "Anggrek" -> "ANGGREK"
+            "Syahdan" -> "SYAHDAN"
+            "Kijang" -> "KIJANG"
+            "Alam Sutera" -> "ASM"
+            "Bandung" -> "BANDUNG"
+            "Bekasi" -> "BKSM"
+            "Malang" -> "MALANG"
+            "Semarang" -> "SEMARANG"
+            else -> "ANGGREK"
         }
     }
 }
