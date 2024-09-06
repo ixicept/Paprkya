@@ -20,8 +20,8 @@ import edu.bluejack24_1.papryka.models.Correction
 class JobListFragment : Fragment() {
 
     private lateinit var vBinding: FragmentJobListBinding
-    private lateinit var tabLayout: TabLayout;
-    private lateinit var viewPager: ViewPager2;
+    private lateinit var tabLayout: TabLayout
+    private lateinit var viewPager: ViewPager2
     private lateinit var jobListPagerAdapter: JobListPagerAdapter
     private val corrections = mutableListOf<Correction>()
     private val casemakings = mutableListOf<Casemaking>()
@@ -36,39 +36,36 @@ class JobListFragment : Fragment() {
         tabLayout = vBinding.tabLayout
         viewPager = vBinding.viewPager
 
-        jobListPagerAdapter = JobListPagerAdapter(requireActivity(), corrections, casemakings)
-        viewPager.adapter = jobListPagerAdapter
-
-        TabLayoutMediator(tabLayout, viewPager) {
-                tab, position ->
-            when (position) {
-                0 -> tab.text = "Correction"
-                1 -> tab.text = "Casemaking"
-            }
-        }.attach()
-
+        setupViewPagerAndTabs()
         fetchJobData()
 
         return vBinding.root
     }
 
-    private fun fetchJobData() {
-        val sharedPreferences = requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
-        val accessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
+    private fun setupViewPagerAndTabs() {
+        jobListPagerAdapter = JobListPagerAdapter(requireActivity(), mutableListOf(), mutableListOf())
+        viewPager.adapter = jobListPagerAdapter
 
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            tab.text = if (position == 0) "Correction" else "Casemaking"
+        }.attach()
+    }
+
+    private fun fetchJobData() {
+        val accessToken = getAccessToken()
         if (accessToken != null) {
             jobListViewModel.fetchCasemaking(accessToken)
             jobListViewModel.fetchCorrection(accessToken)
 
-            jobListViewModel.casemakings.observe(viewLifecycleOwner) { casemakings ->
-                casemakings?.let {
-                    updateCasemakingData(it)
-                }
-            }
-
             jobListViewModel.corrections.observe(viewLifecycleOwner) { corrections ->
                 corrections?.let {
                     updateCorrectionData(it)
+                }
+            }
+
+            jobListViewModel.casemakings.observe(viewLifecycleOwner) { casemakings ->
+                casemakings?.let {
+                    updateCasemakingData(it)
                 }
             }
         } else {
@@ -76,36 +73,26 @@ class JobListFragment : Fragment() {
         }
     }
 
-    private fun updateCasemakingData(jobs: List<Casemaking>) {
-        casemakings.clear()
-        for (job in jobs) {
-            if (job.isCaseMaking) {
-                job.Type = getDescription(job.Description)
-                job.Variation = getVariation(job.Description)
-                casemakings.add(job)
-            }
-        }
-        jobListPagerAdapter = JobListPagerAdapter(requireActivity(), corrections, casemakings)
-        viewPager.adapter = jobListPagerAdapter
-        jobListPagerAdapter.notifyDataSetChanged()
+    private fun updateCasemakingData(casemakings: List<Casemaking>) {
+        this.casemakings.clear()
+        this.casemakings.addAll(casemakings)
+        reinitPagerAdapter()
     }
 
     private fun updateCorrectionData(corrections: List<Correction>) {
         this.corrections.clear()
         this.corrections.addAll(corrections)
-        jobListPagerAdapter = JobListPagerAdapter(requireActivity(), this.corrections, casemakings)
+        reinitPagerAdapter()
+    }
+
+    private fun reinitPagerAdapter() {
+        jobListPagerAdapter = JobListPagerAdapter(requireActivity(), corrections, casemakings)
         viewPager.adapter = jobListPagerAdapter
         jobListPagerAdapter.notifyDataSetChanged()
     }
 
-    private fun getDescription(description: String): String {
-        val words = description.split(" ")
-        return if (words.size >= 2) words[words.size - 2] else "Unknown"
+    private fun getAccessToken(): String? {
+        val sharedPreferences = requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
+        return sharedPreferences.getString("ACCESS_TOKEN", null)
     }
-
-    private fun getVariation(description: String): String {
-        val words = description.split(" ")
-        return if (words.isNotEmpty()) words.last() else "Unknown"
-    }
-
 }

@@ -8,7 +8,12 @@ import edu.bluejack24_1.papryka.fragments.CorrectionFragment
 import edu.bluejack24_1.papryka.models.Casemaking
 import edu.bluejack24_1.papryka.models.Correction
 
-class JobListPagerAdapter(fa: FragmentActivity, private val corrections: MutableList<Correction>, private val casemakings: MutableList<Casemaking>): FragmentStateAdapter(fa) {
+class JobListPagerAdapter(
+    activity: FragmentActivity,
+    private var corrections: List<Correction>,
+    private var casemakings: List<Casemaking>
+) : FragmentStateAdapter(activity) {
+
     override fun getItemCount(): Int {
         return 2
     }
@@ -17,10 +22,18 @@ class JobListPagerAdapter(fa: FragmentActivity, private val corrections: Mutable
         return when (position) {
             0 -> CorrectionFragment.newInstance(corrections)
             1 -> CasemakingFragment.newInstance(casemakings)
-
             else -> CorrectionFragment.newInstance(corrections)
-
         }
     }
 
+    fun updateCasemakingData(casemakings: List<Casemaking>) {
+        this.casemakings = casemakings
+        notifyItemChanged(1)
+    }
+
+    fun updateCorrectionData(corrections: List<Correction>) {
+        println(corrections)
+        this.corrections = corrections
+        notifyItemChanged(0)
+    }
 }

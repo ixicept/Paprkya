@@ -7,16 +7,6 @@ import edu.bluejack24_1.papryka.databinding.CardCorrectionBinding
 import edu.bluejack24_1.papryka.models.Correction
 
 class CorrectionAdapter(private val correctionList: List<Correction>) : RecyclerView.Adapter<CorrectionAdapter.CorrectionViewHolder>() {
-    interface IOnItemClickCallback {
-        fun onItemClicked(correction: Correction)
-    }
-
-    private lateinit var onItemClickCallback: IOnItemClickCallback
-
-    fun setOnItemClickCallback(onItemClickCallback: IOnItemClickCallback) {
-        this.onItemClickCallback = onItemClickCallback
-    }
-
     private lateinit var binding: CardCorrectionBinding
 
     class CorrectionViewHolder(private val binding: CardCorrectionBinding) :
@@ -40,10 +30,5 @@ class CorrectionAdapter(private val correctionList: List<Correction>) : Recycler
     override fun onBindViewHolder(holder: CorrectionViewHolder, position: Int) {
         val corrections = correctionList[position]
         holder.bind(corrections)
-
-        holder.itemView.setOnClickListener {
-            onItemClickCallback.onItemClicked(correctionList[position])
-        }
     }
-
 }

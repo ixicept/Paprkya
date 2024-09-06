@@ -9,11 +9,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import edu.bluejack24_1.papryka.R
 import edu.bluejack24_1.papryka.adapters.CorrectionAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentCorrectionBinding
+import edu.bluejack24_1.papryka.models.Casemaking
 import edu.bluejack24_1.papryka.models.Correction
 
 class CorrectionFragment : Fragment() {
 
-    private var corrections: List<Correction> = emptyList()
+    private lateinit var corrections: List<Correction>
     private lateinit var vBinding: FragmentCorrectionBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

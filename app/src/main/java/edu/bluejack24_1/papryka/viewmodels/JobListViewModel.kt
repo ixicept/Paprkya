@@ -20,24 +20,41 @@ class JobListViewModel : ViewModel() {
     val corrections: LiveData<List<Correction>> get() = _corrections
 
     fun fetchCasemaking(accessToken: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
                 val casemaking = NetworkUtils.apiService.getJobsAssistant("Bearer $accessToken")
-                _casemakings.postValue(casemaking)
+                casemaking.forEach {
+                    it.Type = getDescription(it.Description)
+                    it.Variation = getVariation(it.Description)
+                }
+                _casemakings.value = casemaking.filter {
+                    it.isCaseMaking
+                }
             } catch (e: Exception) {
-                println("Failed to fetch casemaking $e" )
+                println("Failed to fetch casemaking: $e")
             }
         }
     }
 
     fun fetchCorrection(accessToken: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
                 val correction = NetworkUtils.apiService.getCorrectionSchedules("Bearer $accessToken")
-                _corrections.postValue(correction)
+                _corrections.value = correction
             } catch (e: Exception) {
-                println("Failed to fetch correction $e" )
+                println("Failed to fetch correction: $e")
             }
         }
     }
+
+    private fun getDescription(description: String): String {
+        val words = description.split(" ")
+        return if (words.size >= 2) words[words.size - 2] else "Unknown"
+    }
+
+    private fun getVariation(description: String): String {
+        val words = description.split(" ")
+        return if (words.isNotEmpty()) words.last() else "Unknown"
+    }
 }
+
