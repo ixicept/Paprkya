@@ -1,9 +1,11 @@
 package edu.bluejack24_1.papryka.viewmodels
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import edu.bluejack24_1.papryka.models.CollegeSchedule
 import edu.bluejack24_1.papryka.models.Schedule
 import edu.bluejack24_1.papryka.models.processCollegeSchedule
@@ -15,11 +17,12 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
 class HomeViewModel : ViewModel() {
-    //    private lateinit var databaseReference: DatabaseReference
-//
-//    init {
-//        databaseReference = FirebaseDatabase.getInstance().getReference("users")
-//    }
+
+    private lateinit var databaseReference: DatabaseReference
+
+    init {
+        databaseReference = FirebaseDatabase.getInstance().getReference("users")
+    }
 
     private val _userInitial = MutableLiveData<String>()
     val userInitial: LiveData<String> get() = _userInitial
@@ -40,7 +43,7 @@ class HomeViewModel : ViewModel() {
                 withContext(Dispatchers.Main) {
                     _userInitial.value = response.Username
                     _nim.value = response.BinusianNumber
-//                    storeData(response.Username, response.Name)
+                    storeData(response.Username, response.Name)
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -106,24 +109,24 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-//    private fun storeData(initial: String, name: String) {
-//        val user = hashMapOf(
-//            "initial" to initial,
-//            "name" to name
-//        )
-//
-//        viewModelScope.launch(Dispatchers.IO) {
-//            try {
-//                databaseReference.child(initial).setValue(user)
-//                withContext(Dispatchers.Main) {
-//                    _errorMessage.value = "User data stored successfully"
-//                }
-//            } catch (e: Exception) {
-//                withContext(Dispatchers.Main) {
-//                    _errorMessage.value = "Failed to store user data: ${e.message}"
-//                }
-//            }
-//        }
-//    }
+    private fun storeData(initial: String, name: String) {
+        val user = hashMapOf(
+            "initial" to initial,
+            "name" to name
+        )
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                databaseReference.child(initial).setValue(user)
+                withContext(Dispatchers.Main) {
+                    _errorMessage.value = "User data stored successfully"
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    _errorMessage.value = "Failed to store user data: ${e.message}"
+                }
+            }
+        }
+    }
 
 }
