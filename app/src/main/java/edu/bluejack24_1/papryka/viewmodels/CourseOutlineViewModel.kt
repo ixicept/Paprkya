@@ -30,14 +30,7 @@ class CourseOutlineViewModel : ViewModel() {
                 }
 
                 if (response != null) {
-                    val expandableListDetail = HashMap<String, List<String>>()
-
-                    response.Laboratory.forEach { session ->
-                        val title = "Session ${session.Session}: ${session.Topics}"
-                        expandableListDetail[title] = session.SubTopics.map { subTopic -> subTopic.Value }
-                    }
-
-                    _courseOutlineDetails.postValue(expandableListDetail)
+                    processCourseOutlineDetails(response)
                 } else {
                     _errorMessage.postValue("Request timed out or failed. Please try again.")
                 }
@@ -45,5 +38,21 @@ class CourseOutlineViewModel : ViewModel() {
                 _errorMessage.postValue("Failed to get Teaching Detail transactions")
             }
         }
+    }
+
+    private fun processCourseOutlineDetails(response: TeachingDetailResponse) {
+        val expandableListDetail = HashMap<String, List<String>>()
+
+        response.Laboratory.forEach { session ->
+            val title = "Session ${session.Session}: ${session.Topics}"
+            expandableListDetail[title] = session.SubTopics.map { subTopic -> subTopic.Value }
+        }
+
+        val sortedExpandableListDetail = expandableListDetail.entries
+            .sortedBy {
+                it.key.substringAfter("Session ").substringBefore(":").trim().toIntOrNull() ?: Int.MAX_VALUE
+            }.associate { it.toPair() }
+
+        _courseOutlineDetails.postValue(sortedExpandableListDetail as HashMap<String, List<String>>?)
     }
 }

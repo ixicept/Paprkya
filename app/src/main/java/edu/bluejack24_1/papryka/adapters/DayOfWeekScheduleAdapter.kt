@@ -51,7 +51,7 @@ class DayOfWeekScheduleAdapter(private val scheduleList: Map<String, List<Schedu
     }
 
     override fun getItemCount(): Int {
-        return 7
+        return 6
     }
 
     override fun onBindViewHolder(holder: DayOfWeekScheduleViewHolder, position: Int) {
@@ -63,7 +63,7 @@ class DayOfWeekScheduleAdapter(private val scheduleList: Map<String, List<Schedu
                 (holder.itemView.context as? AppCompatActivity)?.let { activity ->
                     val detailFragment = TeachingDetailFragment.newInstance(schedule)
                     activity.supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragmentContainer, detailFragment)
+                        .add(R.id.fragmentContainer, detailFragment)
                         .addToBackStack(null)
                         .commit()
                 }

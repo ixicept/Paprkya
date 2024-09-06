@@ -53,7 +53,7 @@ class TodayFragment : Fragment() {
                 val detailFragment = TeachingDetailFragment.newInstance(schedule)
 
                 requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragmentContainer, detailFragment)
+                    .add(R.id.fragmentContainer, detailFragment)
                     .addToBackStack(null)
                     .commit()
             }

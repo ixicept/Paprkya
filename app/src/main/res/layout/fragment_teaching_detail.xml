@@ -12,6 +12,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="32dp"
+        android:background="@color/dirty_white"
         tools:ignore="UselessParent">
 
         <Button
@@ -29,7 +30,9 @@
             android:text="@string/back"
             android:textAlignment="textStart"
             android:textAllCaps="true"
-            android:textColor="@color/black" />
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
 
         <TextView
@@ -38,6 +41,7 @@
             android:layout_marginBottom="8dp"
             android:fontFamily="@font/ubuntu"
             android:text="@string/teaching_detail"
+            android:textColor="@color/black"
             android:textSize="22sp"
             android:textStyle="bold" />
 
@@ -45,33 +49,42 @@
             android:id="@+id/tvSubject"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
             android:fontFamily="@font/ubuntu"
-            android:text="@string/subject" />
+            android:text="@string/subject"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/tvClass"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
             android:fontFamily="@font/ubuntu"
-            android:text="@string/classroom" />
+            android:text="@string/classroom"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/tvRoom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
             android:fontFamily="@font/ubuntu"
             android:text="@string/teaching_room"
-            android:layout_marginBottom="12dp"/>
+            android:textColor="@color/black"
+            android:textSize="16sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/course_outline"
-            android:fontFamily="@font/ubuntu"
-            android:textSize="18sp"
-            android:textStyle="bold"
+            android:layout_marginTop="4dp"
             android:layout_marginBottom="8dp"
-            />
+            android:fontFamily="@font/ubuntu"
+            android:text="@string/course_outline"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <ExpandableListView
             android:id="@+id/expandableListView"

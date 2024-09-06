@@ -21,7 +21,6 @@ class TeachingDetailFragment : Fragment() {
     private lateinit var vBinding: FragmentTeachingDetailBinding
 
     private lateinit var expandableListView: ExpandableListView
-    private lateinit var expandableListTitle: List<String>
     private lateinit var expandableListAdapter: CourseOutlineListAdapter
 
     private val courseOutlineViewModel: CourseOutlineViewModel by viewModels()
@@ -42,23 +41,24 @@ class TeachingDetailFragment : Fragment() {
     ): View? {
         vBinding = FragmentTeachingDetailBinding.inflate(inflater, container, false)
 
+        setupUI()
+        observeViewModel()
+        fetchDetail()
+
+        return vBinding.root
+    }
+
+    private fun setupUI() {
         vBinding.tvSubject.text = String.format("%s\t: %s", getString(R.string.subject), schedule.Subject)
         vBinding.tvClass.text = String.format("%s\t: %s", getString(R.string.classroom), schedule.Class)
         vBinding.tvRoom.text = String.format("%s\t: %s", getString(R.string.teaching_room), schedule.Room)
 
         expandableListView = vBinding.expandableListView
         expandableListView.setGroupIndicator(null)
-        val displayMetrics = resources.displayMetrics
-        val width = displayMetrics.widthPixels
-        expandableListView.setIndicatorBoundsRelative(width - 16, width)
 
         vBinding.btnBack.setOnClickListener {
             requireActivity().supportFragmentManager.popBackStack()
         }
-
-        observeViewModel()
-        fetchDetail()
-        return vBinding.root
     }
 
     private fun observeViewModel() {
