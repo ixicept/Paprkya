@@ -1,37 +1,42 @@
 package edu.bluejack24_1.papryka.fragments
 
-import android.content.Context
-import android.content.Intent
-import android.content.res.Configuration
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import edu.bluejack24_1.papryka.R
-import edu.bluejack24_1.papryka.activities.LoginActivity
-import edu.bluejack24_1.papryka.activities.MainActivity
 import edu.bluejack24_1.papryka.databinding.FragmentSettingsBinding
-import edu.bluejack24_1.papryka.utils.getCurrentLanguage
+import edu.bluejack24_1.papryka.utils.getLanguageCode
 import edu.bluejack24_1.papryka.utils.setLanguageForApp
-import java.util.Locale
-
+import edu.bluejack24_1.papryka.viewmodels.SettingsViewModel
 
 class SettingsFragment : Fragment() {
 
     private lateinit var vBinding: FragmentSettingsBinding
+    private val settingsViewModel: SettingsViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         vBinding = FragmentSettingsBinding.inflate(inflater, container, false)
-        val languageSpinner = vBinding.spLanguage
 
+        setupSpinner()
+        observeViewModel()
+
+        vBinding.btnLogout.setOnClickListener {
+            settingsViewModel.logout(requireContext())
+        }
+
+        return vBinding.root
+    }
+
+    private fun setupSpinner() {
+        val languageSpinner = vBinding.spLanguage
         ArrayAdapter.createFromResource(
             requireContext(),
             R.array.languages,
@@ -41,8 +46,7 @@ class SettingsFragment : Fragment() {
             languageSpinner.adapter = adapter
         }
 
-        val defaultLanguage = getCurrentLanguage(requireContext())
-
+        val defaultLanguage = settingsViewModel.getCurrentLanguage(requireContext())
         val position = when (defaultLanguage) {
             "en" -> 0
             "in" -> 1
@@ -51,47 +55,26 @@ class SettingsFragment : Fragment() {
         languageSpinner.setSelection(position)
 
         languageSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 val selectedLanguage = parent.getItemAtPosition(position).toString()
-                val languageCode = when (selectedLanguage) {
-                    "English" -> "en"
-                    "Bahasa Indonesia" -> "in"
-                    else -> "not-set"
-                }
-
-                setLanguageForApp(requireActivity(), languageCode)
-
-                val sharedPref = requireContext().getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
-                with(sharedPref.edit()) {
-                    putString("selected_language", languageCode)
-                    apply()
-                }
-                refreshUI()
+                val languageCode = getLanguageCode(selectedLanguage)
+                settingsViewModel.setSelectedLanguage(languageCode)
             }
 
-            override fun onNothingSelected(p0: AdapterView<*>?) {
-//                setLanguageForApp("not-set")
-            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
+    }
 
-        vBinding.btnLogout.setOnClickListener {
-            val intentToLogin = Intent(requireActivity(), LoginActivity::class.java)
-            startActivity(intentToLogin)
-            requireActivity().finish()
+    private fun observeViewModel() {
+        settingsViewModel.selectedLanguage.observe(viewLifecycleOwner) { languageCode ->
+            setLanguageForApp(requireActivity(), languageCode)
+            settingsViewModel.saveLanguage(requireContext(), languageCode)
+            refreshUI()
         }
-
-        return vBinding.root
     }
 
     private fun refreshUI() {
         vBinding.tvSettings.text = getString(R.string.settings)
         vBinding.tvLanguage.text = getString(R.string.language)
     }
-
-
 }

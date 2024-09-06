@@ -70,9 +70,7 @@ class LoginActivity : AppCompatActivity() {
                 sharedPreferences.edit().putString("ACCESS_TOKEN", it).apply()
 
                 Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
-                val intentToHome = Intent(this, MainActivity::class.java)
-                startActivity(intentToHome)
-                finish()
+                userViewModel.toHome(this)
             }
         }
 

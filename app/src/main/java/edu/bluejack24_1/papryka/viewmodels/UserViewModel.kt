@@ -1,6 +1,8 @@
 package edu.bluejack24_1.papryka.viewmodels
 
+import android.content.Context
 import android.content.Context.MODE_PRIVATE
+import android.content.Intent
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
@@ -10,6 +12,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import edu.bluejack24_1.papryka.R
+import edu.bluejack24_1.papryka.activities.LoginActivity
+import edu.bluejack24_1.papryka.activities.MainActivity
 import edu.bluejack24_1.papryka.models.LoginRequest
 import edu.bluejack24_1.papryka.utils.NetworkUtils
 import kotlinx.coroutines.Dispatchers
@@ -56,6 +61,7 @@ class UserViewModel : ViewModel() {
                         val accessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
                         if (accessToken != null) {
                             fetchUserInformation(accessToken)
+                            toHome(activity)
                         } else {
                             _biometricError.postValue("Access token not found")
                         }
@@ -68,8 +74,8 @@ class UserViewModel : ViewModel() {
 
                 promptInfo = BiometricPrompt.PromptInfo.Builder()
                     .setTitle("Biometric Login")
-                    .setSubtitle("Log in using your biometric credential")
-                    .setNegativeButtonText("Use password")
+                    .setSubtitle(activity.getString(R.string.login_with_biometric))
+                    .setNegativeButtonText(activity.getString(R.string.use_password))
                     .build()
             }
             BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
@@ -97,5 +103,11 @@ class UserViewModel : ViewModel() {
                 _loginError.postValue("Failed to get user information")
             }
         }
+    }
+
+    fun toHome(context: Context) {
+        val intentToHome = Intent(context, MainActivity::class.java)
+        intentToHome.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        context.startActivity(intentToHome)
     }
 }

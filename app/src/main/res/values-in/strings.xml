@@ -44,4 +44,5 @@
     <string name="campus">Kampus</string>
     <string name="logout">Keluar</string>
     <string name="day">Hari</string>
+    <string name="use_password">Gunakan kata sandi</string>
 </resources>

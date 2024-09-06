@@ -17,6 +17,14 @@ fun getCurrentLanguage(context: Context): String? {
     }
 }
 
+fun getLanguageCode(language: String): String {
+    return when (language) {
+        "English" -> "en"
+        "Bahasa Indonesia" -> "in"
+        else -> "not-set"
+    }
+}
+
 fun setLanguageForApp(activity: Activity, languageToLoad: String) {
     val locale = if (languageToLoad == "not-set") {
         Locale.getDefault()

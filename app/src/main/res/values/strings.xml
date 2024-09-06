@@ -5,6 +5,7 @@
     <string name="initial">Initial</string>
     <string name="password">Password</string>
     <string name="login_with_biometric">Login with biometric</string>
+    <string name="use_password">Use password</string>
     <string name="schedule">Schedule</string>
     <string name="back">Back</string>
     <string name="teaching_detail">Teaching Detail</string>
@@ -109,5 +110,4 @@
         <item>24-2</item>
     </string-array>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
