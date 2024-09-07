@@ -17,6 +17,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        style="?android:attr/progressBarStyleHorizontal"
+        app:layout_constraintBottom_toTopOf="@+id/botNav"
+        android:progressTint="@color/android_green"
+        android:indeterminate="true" />
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/botNav"
         android:layout_width="match_parent"

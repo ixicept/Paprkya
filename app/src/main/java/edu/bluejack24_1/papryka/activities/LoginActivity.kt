@@ -11,6 +11,8 @@ import androidx.core.content.ContextCompat
 import edu.bluejack24_1.papryka.databinding.ActivityLoginBinding
 import edu.bluejack24_1.papryka.models.LoginRequest
 import edu.bluejack24_1.papryka.utils.NetworkUtils
+import edu.bluejack24_1.papryka.utils.SnackBarUtils
+import edu.bluejack24_1.papryka.utils.TokenManager
 import edu.bluejack24_1.papryka.utils.getCurrentLanguage
 import edu.bluejack24_1.papryka.utils.setLanguageForApp
 import edu.bluejack24_1.papryka.viewmodels.UserViewModel
@@ -22,8 +24,6 @@ import kotlinx.coroutines.withContext
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
-    private lateinit var biometricPrompt: BiometricPrompt
-    private lateinit var promptInfo: BiometricPrompt.PromptInfo
     private val userViewModel: UserViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,8 +56,7 @@ class LoginActivity : AppCompatActivity() {
         userViewModel.setupBiometricPrompt(this)
 
         binding.btnBiometric.setOnClickListener {
-            val sharedPreferences = getSharedPreferences("AppPreference", MODE_PRIVATE)
-            val accessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
+            val accessToken = TokenManager.getAccessToken(this)
             if (accessToken != null) userViewModel.authenticateBiometric()
             else Toast.makeText(this, "Please login with password first", Toast.LENGTH_SHORT).show()
         }
@@ -66,10 +65,8 @@ class LoginActivity : AppCompatActivity() {
     private fun observeViewModel() {
         userViewModel.accessToken.observe(this) { token ->
             token?.let {
-                val sharedPreferences = getSharedPreferences("AppPreference", MODE_PRIVATE)
-                sharedPreferences.edit().putString("ACCESS_TOKEN", it).apply()
+                TokenManager.saveAccessToken(this, it)
 
-                Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
                 userViewModel.toHome(this)
             }
         }

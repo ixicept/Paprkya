@@ -11,9 +11,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import edu.bluejack24_1.papryka.R
+import edu.bluejack24_1.papryka.activities.MainActivity
 import edu.bluejack24_1.papryka.adapters.CourseOutlineListAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentTeachingDetailBinding
 import edu.bluejack24_1.papryka.models.Schedule
+import edu.bluejack24_1.papryka.utils.SnackBarUtils
 import edu.bluejack24_1.papryka.viewmodels.CourseOutlineViewModel
 
 class TeachingDetailFragment : Fragment() {
@@ -72,9 +74,17 @@ class TeachingDetailFragment : Fragment() {
 
         courseOutlineViewModel.errorMessage.observe(viewLifecycleOwner, Observer { errorMessage ->
             errorMessage?.let {
-                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                SnackBarUtils.showSnackBar(vBinding.root, it)
             }
         })
+
+        courseOutlineViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            if (isLoading) {
+                (activity as MainActivity).showProgressBar()
+            } else {
+                (activity as MainActivity).hideProgressBar()
+            }
+        }
     }
 
     private fun fetchDetail() {
@@ -84,7 +94,7 @@ class TeachingDetailFragment : Fragment() {
         if (accessToken != null) {
             courseOutlineViewModel.fetchCourseOutlineDetails(accessToken, schedule.CourseOutlineId)
         } else {
-            Toast.makeText(requireContext(), "Access token not found", Toast.LENGTH_SHORT).show()
+            SnackBarUtils.showSnackBar(vBinding.root, "Please login first")
         }
     }
 

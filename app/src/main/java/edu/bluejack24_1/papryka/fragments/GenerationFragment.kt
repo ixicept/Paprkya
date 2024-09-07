@@ -13,11 +13,14 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import edu.bluejack24_1.papryka.R
+import edu.bluejack24_1.papryka.activities.MainActivity
 import edu.bluejack24_1.papryka.adapters.AssistantScheduleAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentGenerationBinding
 import edu.bluejack24_1.papryka.databinding.FragmentInitialBinding
 import edu.bluejack24_1.papryka.models.User
 import edu.bluejack24_1.papryka.utils.NetworkUtils
+import edu.bluejack24_1.papryka.utils.SnackBarUtils
+import edu.bluejack24_1.papryka.utils.TokenManager.getAccessToken
 import edu.bluejack24_1.papryka.viewmodels.ScheduleViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -75,7 +78,7 @@ class GenerationFragment : Fragment() {
             }
         }
 
-        val accessToken = getAccessToken()
+        val accessToken = getAccessToken(requireActivity()) ?: ""
 
         adapter = AssistantScheduleAdapter(listOf())
         vBinding.rvSchedule.adapter = adapter
@@ -86,14 +89,21 @@ class GenerationFragment : Fragment() {
         }
 
         scheduleViewModel.assistantSchedules.observe(viewLifecycleOwner) { schedules ->
-            println(schedules)
             adapter = AssistantScheduleAdapter(schedules)
             vBinding.rvSchedule.adapter = adapter
             adapter.notifyDataSetChanged()
         }
 
+        scheduleViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            if (isLoading) {
+                (activity as MainActivity).showProgressBar()
+            } else {
+                (activity as MainActivity).hideProgressBar()
+            }
+        }
+
         scheduleViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
-            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+            SnackBarUtils.showSnackBar(vBinding.root, errorMessage)
         }
 
         scheduleViewModel.initials.observe(viewLifecycleOwner) { initials ->
@@ -106,12 +116,6 @@ class GenerationFragment : Fragment() {
 
 
         return vBinding.root
-    }
-
-    private fun getAccessToken(): String {
-        val sharedPreferences =
-            requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
-        return sharedPreferences.getString("ACCESS_TOKEN", null) ?: ""
     }
 
     fun updateDate(newDate: String) {

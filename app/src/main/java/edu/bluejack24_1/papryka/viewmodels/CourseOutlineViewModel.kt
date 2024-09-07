@@ -18,9 +18,13 @@ class CourseOutlineViewModel : ViewModel() {
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> get() = _errorMessage
 
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> get() = _isLoading
+
     fun fetchCourseOutlineDetails(accessToken: String, courseOutlineId: String) {
         CoroutineScope(Dispatchers.IO).launch() {
             val timeoutDuration = 10_000L
+            _isLoading.postValue(true)
             try {
                 val response: TeachingDetailResponse? = withTimeoutOrNull(timeoutDuration) {
                     NetworkUtils.apiService.getCourseOutlineDetail(
@@ -36,6 +40,8 @@ class CourseOutlineViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 _errorMessage.postValue("Failed to get Teaching Detail transactions")
+            } finally {
+                _isLoading.postValue(false)
             }
         }
     }

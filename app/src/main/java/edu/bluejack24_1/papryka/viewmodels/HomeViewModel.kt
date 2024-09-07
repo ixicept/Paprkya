@@ -33,8 +33,15 @@ class HomeViewModel : ViewModel() {
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> get() = _errorMessage
 
+    private val _successMessage = MutableLiveData<String>()
+    val successMessage: LiveData<String> get() = _successMessage
+
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> get() = _isLoading
+
     fun fetchUserInformation(accessToken: String) {
         viewModelScope.launch(Dispatchers.IO) {
+            startLoading()
             try {
                 val response = NetworkUtils.apiService.getUserInfo("Bearer $accessToken")
                 withContext(Dispatchers.Main) {
@@ -46,12 +53,15 @@ class HomeViewModel : ViewModel() {
                 withContext(Dispatchers.Main) {
                     _errorMessage.value = "Failed to get user information"
                 }
+            } finally {
+                stopLoading()
             }
         }
     }
 
     fun fetchClassTransaction(username: String, accessToken: String) {
         viewModelScope.launch(Dispatchers.IO) {
+            startLoading()
             try {
                 val timeoutDuration = 10_000L
                 val response: List<Schedule>? = withTimeoutOrNull(timeoutDuration) {
@@ -76,12 +86,15 @@ class HomeViewModel : ViewModel() {
                 withContext(Dispatchers.Main) {
                     _errorMessage.value = "Failed to get class transactions"
                 }
+            } finally {
+                stopLoading()
             }
         }
     }
 
     fun fetchCollegeSchedule(nim: String, accessToken: String, timeframe: String) {
         viewModelScope.launch(Dispatchers.IO) {
+            startLoading()
             val (startDate, endDate) = getDateRange(timeframe)
             val timeoutDuration = 20_000L
             try {
@@ -103,7 +116,23 @@ class HomeViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 _errorMessage.postValue("Failed to get college transactions")
+            } finally {
+                stopLoading()
             }
+        }
+    }
+
+    private var activeTasks = 0
+
+    private fun startLoading() {
+        activeTasks++
+        _isLoading.postValue(true)
+    }
+
+    private fun stopLoading() {
+        activeTasks--
+        if (activeTasks == 0) {
+            _isLoading.postValue(false)
         }
     }
 
@@ -117,7 +146,7 @@ class HomeViewModel : ViewModel() {
             try {
                 databaseReference.child(initial).setValue(user)
                 withContext(Dispatchers.Main) {
-                    _errorMessage.value = "User data stored successfully"
+                    _successMessage.value = "User data stored successfully"
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {

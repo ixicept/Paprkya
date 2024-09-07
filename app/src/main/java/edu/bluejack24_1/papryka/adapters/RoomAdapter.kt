@@ -7,15 +7,6 @@ import edu.bluejack24_1.papryka.databinding.CardRoomBinding
 import edu.bluejack24_1.papryka.models.StatusDetail
 
 class RoomAdapter(private val roomList: List<StatusDetail>): RecyclerView.Adapter<RoomAdapter.RoomViewHolder>() {
-    interface IOnItemClickCallback {
-        fun onItemClicked(room: StatusDetail)
-    }
-
-    private lateinit var onItemClickCallback: IOnItemClickCallback
-
-    fun setOnItemClickCallback(onItemClickCallback: IOnItemClickCallback) {
-        this.onItemClickCallback = onItemClickCallback
-    }
 
     private lateinit var binding: CardRoomBinding
 
@@ -40,10 +31,6 @@ class RoomAdapter(private val roomList: List<StatusDetail>): RecyclerView.Adapte
     override fun onBindViewHolder(holder: RoomViewHolder, position: Int) {
         val rooms = roomList[position]
         holder.bind(rooms)
-
-        holder.itemView.setOnClickListener {
-            onItemClickCallback.onItemClicked(roomList[position])
-        }
     }
 
 }

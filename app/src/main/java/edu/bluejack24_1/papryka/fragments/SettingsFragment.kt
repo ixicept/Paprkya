@@ -76,5 +76,6 @@ class SettingsFragment : Fragment() {
     private fun refreshUI() {
         vBinding.tvSettings.text = getString(R.string.settings)
         vBinding.tvLanguage.text = getString(R.string.language)
+        vBinding.btnLogout.text = getString(R.string.logout)
     }
 }

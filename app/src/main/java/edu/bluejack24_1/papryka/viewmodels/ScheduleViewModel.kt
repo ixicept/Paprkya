@@ -25,8 +25,8 @@ class ScheduleViewModel : ViewModel() {
     private val _initials = MutableLiveData<List<String>>()
     val initials: LiveData<List<String>> get() = _initials
 
-    private val _loading = MutableLiveData<Boolean>()
-    val loading: LiveData<Boolean> get() = _loading
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> get() = _isLoading
 
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> get() = _error
@@ -34,7 +34,7 @@ class ScheduleViewModel : ViewModel() {
     private val apiService = NetworkUtils.apiService
 
     fun loadSchedules(initials: List<String>, date: String, shift: String, accessToken: String) {
-        _loading.value = true
+        _isLoading.postValue(true)
         viewModelScope.launch {
             val assistantSchedules = mutableListOf<AssistantSchedule>()
             println("Load schedules: $initials, $date, $shift, $accessToken")
@@ -64,7 +64,7 @@ class ScheduleViewModel : ViewModel() {
             }
 
             _assistantSchedules.value = assistantSchedules
-            _loading.value = false
+            _isLoading.postValue(false)
         }
     }
 

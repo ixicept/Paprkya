@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -17,9 +18,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import edu.bluejack24_1.papryka.R
+import edu.bluejack24_1.papryka.activities.MainActivity
 import edu.bluejack24_1.papryka.adapters.RoomAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentRoomBinding
 import edu.bluejack24_1.papryka.models.StatusDetail
+import edu.bluejack24_1.papryka.utils.ProgressBarUtils
+import edu.bluejack24_1.papryka.utils.SnackBarUtils
+import edu.bluejack24_1.papryka.utils.TokenManager
 import edu.bluejack24_1.papryka.utils.showDateDialog
 import edu.bluejack24_1.papryka.viewmodels.RoomViewModel
 import java.util.Locale
@@ -29,10 +34,8 @@ class RoomFragment : Fragment() {
     private lateinit var datePickerDialog: DatePickerDialog
     private lateinit var dateFormatter: SimpleDateFormat
     private lateinit var etDate: TextView
-
     private lateinit var vBinding: FragmentRoomBinding
 
-    private val roomList: MutableList<StatusDetail> = mutableListOf()
     private lateinit var roomAdapter: RoomAdapter
     private val roomViewModel: RoomViewModel by viewModels()
 
@@ -60,7 +63,7 @@ class RoomFragment : Fragment() {
             val unapproved = vBinding.cbUnapproved.isChecked
             val onsite = vBinding.cbOnsite.isChecked
 
-            val accessToken = getAccessToken()
+            val accessToken = TokenManager.getAccessToken(requireActivity())
             if (accessToken != null) {
                 roomViewModel.fetchRoomTransactions(
                     accessToken,
@@ -70,8 +73,7 @@ class RoomFragment : Fragment() {
                     unapproved
                 )
             } else {
-                Toast.makeText(requireContext(), "Access token not found", Toast.LENGTH_SHORT)
-                    .show()
+                SnackBarUtils.showSnackBar(vBinding.root, "Please login first")
             }
         }
         roomViewModel.roomList.observe(viewLifecycleOwner) { rooms ->
@@ -84,7 +86,15 @@ class RoomFragment : Fragment() {
 
         roomViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
-                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                SnackBarUtils.showSnackBar(vBinding.root, it)
+            }
+        }
+
+        roomViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            if (isLoading) {
+                (activity as MainActivity).showProgressBar()
+            } else {
+                (activity as MainActivity).hideProgressBar()
             }
         }
 
@@ -110,11 +120,4 @@ class RoomFragment : Fragment() {
             campusSpinner.adapter = adapter
         }
     }
-
-    private fun getAccessToken(): String? {
-        val sharedPreferences =
-            requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
-        return sharedPreferences.getString("ACCESS_TOKEN", null)
-    }
-
 }

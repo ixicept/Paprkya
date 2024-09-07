@@ -4,14 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.tabs.TabLayoutMediator
 import edu.bluejack24_1.papryka.R
+import edu.bluejack24_1.papryka.activities.MainActivity
 import edu.bluejack24_1.papryka.adapters.HomePagerAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentHomeBinding
+import edu.bluejack24_1.papryka.utils.SnackBarUtils
+import edu.bluejack24_1.papryka.utils.TokenManager
 import edu.bluejack24_1.papryka.viewmodels.HomeViewModel
 import edu.bluejack24_1.papryka.viewmodels.UserViewModel
 
@@ -33,7 +35,7 @@ class HomeFragment : Fragment() {
 
         setupTabLayout()
         observeViewModel()
-        homeViewModel.fetchUserInformation(getAccessToken())
+        homeViewModel.fetchUserInformation(TokenManager.getAccessToken(requireActivity())!!)
 
         return vBinding.root
     }
@@ -48,6 +50,8 @@ class HomeFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+        val accessToken = TokenManager.getAccessToken(requireActivity()) ?: ""
+
         homeViewModel.schedules.observe(viewLifecycleOwner) { schedules ->
             homePagerAdapter = HomePagerAdapter(requireActivity(), schedules.toMutableList())
             vBinding.viewPager.adapter = homePagerAdapter
@@ -56,31 +60,31 @@ class HomeFragment : Fragment() {
 
         homeViewModel.userInitial.observe(viewLifecycleOwner) { initial ->
             vBinding.tvInitial.text = initial
-            homeViewModel.fetchClassTransaction(initial, getAccessToken())
+            homeViewModel.fetchClassTransaction(initial, accessToken)
         }
 
         homeViewModel.nim.observe(viewLifecycleOwner) { nim ->
-            homeViewModel.fetchCollegeSchedule(nim, getAccessToken(), "weekly")
+            homeViewModel.fetchCollegeSchedule(nim, accessToken, "weekly")
         }
 
         homeViewModel.errorMessage.observe(viewLifecycleOwner) { message ->
-            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+            SnackBarUtils.showSnackBarWithAction(vBinding.root, message, "Retry") {
+                homeViewModel.fetchClassTransaction(homeViewModel.userInitial.value!!, accessToken)
+                homeViewModel.fetchCollegeSchedule(homeViewModel.nim.value!!, accessToken, "weekly")
+            }
+        }
+
+        homeViewModel.successMessage.observe(viewLifecycleOwner) { message ->
+            SnackBarUtils.showSnackBar(vBinding.root, message)
+        }
+
+        homeViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            if (isLoading) {
+                (activity as MainActivity).showProgressBar()
+            } else {
+                (activity as MainActivity).hideProgressBar()
+            }
         }
     }
 
-    private fun fetchUserInformation() {
-        val accessToken = getAccessToken()
-
-        if (accessToken != null) {
-            userViewModel.fetchUserInformation(accessToken)
-        } else {
-            Toast.makeText(requireContext(), "Access token not found", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun getAccessToken(): String {
-        val sharedPreferences =
-            requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
-        return sharedPreferences.getString("ACCESS_TOKEN", null) ?: ""
-    }
 }

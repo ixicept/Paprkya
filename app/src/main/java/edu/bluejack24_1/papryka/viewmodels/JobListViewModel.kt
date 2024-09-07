@@ -13,14 +13,21 @@ import kotlinx.coroutines.launch
 
 class JobListViewModel : ViewModel() {
 
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> get() = _isLoading
+
     private val _casemakings = MutableLiveData<List<Casemaking>>()
     val casemakings: LiveData<List<Casemaking>> get() = _casemakings
 
     private val _corrections = MutableLiveData<List<Correction>>()
     val corrections: LiveData<List<Correction>> get() = _corrections
 
+    private val _errorMessage = MutableLiveData<String>()
+    val errorMessage: LiveData<String> get() = _errorMessage
+
     fun fetchCasemaking(accessToken: String) {
         viewModelScope.launch {
+            startLoading()
             try {
                 val casemaking = NetworkUtils.apiService.getJobsAssistant("Bearer $accessToken")
                 casemaking.forEach {
@@ -31,19 +38,38 @@ class JobListViewModel : ViewModel() {
                     it.isCaseMaking
                 }
             } catch (e: Exception) {
-                println("Failed to fetch casemaking: $e")
+                _errorMessage.postValue("Failed to fetch casemaking: $e")
+            } finally {
+                stopLoading()
             }
         }
     }
 
     fun fetchCorrection(accessToken: String) {
         viewModelScope.launch {
+            startLoading()
             try {
                 val correction = NetworkUtils.apiService.getCorrectionSchedules("Bearer $accessToken")
                 _corrections.value = correction
             } catch (e: Exception) {
-                println("Failed to fetch correction: $e")
+                _errorMessage.postValue("Failed to fetch correction: $e")
+            } finally {
+                stopLoading()
             }
+        }
+    }
+
+    private var activeTasks = 0
+
+    private fun startLoading() {
+        activeTasks++
+        _isLoading.postValue(true)
+    }
+
+    private fun stopLoading() {
+        activeTasks--
+        if (activeTasks == 0) {
+            _isLoading.postValue(false)
         }
     }
 

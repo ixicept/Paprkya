@@ -18,6 +18,9 @@ class RoomViewModel : ViewModel() {
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> get() = _error
 
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> get() = _isLoading
+
     fun fetchRoomTransactions(
         accessToken: String,
         date: String,
@@ -29,6 +32,7 @@ class RoomViewModel : ViewModel() {
         val campusCode = mapCampusToCode(campus)
 
         CoroutineScope(Dispatchers.IO).launch() {
+            _isLoading.postValue(true)
             try {
                 val roomTransactions = NetworkUtils.apiService.getRoomTransactions(
                     "Bearer $accessToken", date, date, unapproved
@@ -60,6 +64,8 @@ class RoomViewModel : ViewModel() {
                 withContext(Dispatchers.Main) {
                     _error.value = "Failed to get room transactions"
                 }
+            } finally {
+                _isLoading.postValue(false)
             }
         }
     }
