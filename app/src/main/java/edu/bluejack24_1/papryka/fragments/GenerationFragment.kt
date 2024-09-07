@@ -6,31 +6,54 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import edu.bluejack24_1.papryka.R
 import edu.bluejack24_1.papryka.adapters.AssistantScheduleAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentGenerationBinding
+import edu.bluejack24_1.papryka.databinding.FragmentInitialBinding
 import edu.bluejack24_1.papryka.models.User
 import edu.bluejack24_1.papryka.utils.NetworkUtils
+import edu.bluejack24_1.papryka.viewmodels.ScheduleViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
-class GenerationFragment : ScheduleBaseFragment() {
+class GenerationFragment : Fragment() {
 
-    private lateinit var generationBinding: FragmentGenerationBinding
+    private val scheduleViewModel: ScheduleViewModel by viewModels()
+    private lateinit var vBinding: FragmentGenerationBinding
+    private lateinit var adapter: AssistantScheduleAdapter
+    private val initials = mutableListOf<String>()
+
+    private var date: String? = null
+    private var day: String? = null
+    private var shift: String? = null
+    private var midCode: String? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            date = it.getString(ARG_DATE)
+            day = it.getString(ARG_DAY)
+            shift = it.getString(ARG_SHIFT)
+            midCode = it.getString(ARG_MID_CODE)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        generationBinding = FragmentGenerationBinding.inflate(inflater, container, false)
+        vBinding = FragmentGenerationBinding.inflate(inflater, container, false)
 
-        val generationSpinner = generationBinding.spGeneration
+        val generationSpinner = vBinding.spGeneration
 
         ArrayAdapter.createFromResource(
             requireContext(),
@@ -43,7 +66,8 @@ class GenerationFragment : ScheduleBaseFragment() {
 
         generationSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                getInitials()
+                val selectedGeneration = generationSpinner.selectedItem.toString()
+                scheduleViewModel.fetchInitials(selectedGeneration)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -51,69 +75,68 @@ class GenerationFragment : ScheduleBaseFragment() {
             }
         }
 
-        val sharedPreferences =
-            requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
-        val accessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
+        val accessToken = getAccessToken()
 
-        assistantScheduleAdapter = AssistantScheduleAdapter(astSchedules)
-        generationBinding.rvSchedule.adapter = assistantScheduleAdapter
-        generationBinding.rvSchedule.layoutManager = LinearLayoutManager(requireContext())
+        adapter = AssistantScheduleAdapter(listOf())
+        vBinding.rvSchedule.adapter = adapter
+        vBinding.rvSchedule.layoutManager = LinearLayoutManager(requireContext())
 
-        generationBinding.btnView.setOnClickListener {
-            astSchedules.clear()
-            schedulesLiveData.value = emptyList()
-            initSchedules()
-            initials.forEach {
-                fetchAssistantClassTransaction(it, accessToken)
-//                fetchCollegeSchedule(it, accessToken, date!!)
-            }
+        vBinding.btnView.setOnClickListener {
+            scheduleViewModel.loadSchedules(initials, date!!, shift!!, accessToken)
         }
 
-        schedulesLiveData.observe(viewLifecycleOwner, Observer { schedules ->
-            assistantScheduleAdapter.notifyDataSetChanged()
-            println("All Assistant Schedules: $schedules")
-        })
+        scheduleViewModel.assistantSchedules.observe(viewLifecycleOwner) { schedules ->
+            println(schedules)
+            adapter = AssistantScheduleAdapter(schedules)
+            vBinding.rvSchedule.adapter = adapter
+            adapter.notifyDataSetChanged()
+        }
+
+        scheduleViewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+        }
+
+        scheduleViewModel.initials.observe(viewLifecycleOwner) { initials ->
+            initials?.let {
+                this.initials.clear()
+                this.initials.addAll(it)
+            }
+            println("Initials: $this.initials")
+        }
 
 
-        return generationBinding.root
+        return vBinding.root
     }
 
-    override fun getInitials() {
-        initials.clear()
-        val selectedGeneration = generationBinding.spGeneration.selectedItem.toString()
-        fetchAssistant(selectedGeneration)
+    private fun getAccessToken(): String {
+        val sharedPreferences =
+            requireActivity().getSharedPreferences("AppPreference", AppCompatActivity.MODE_PRIVATE)
+        return sharedPreferences.getString("ACCESS_TOKEN", null) ?: ""
+    }
+
+    fun updateDate(newDate: String) {
+        date = newDate
+    }
+
+    fun updateShift(newShift: String) {
+        shift = newShift
     }
 
     companion object {
-        fun newInstance(date: String, day: String, shift: String, midCode: String): GenerationFragment {
-            val fragment = GenerationFragment()
-            fragment.arguments = createArguments(date, day, shift, midCode)
-            return fragment
-        }
-    }
+        private const val ARG_DATE = "date"
+        private const val ARG_DAY = "day"
+        private const val ARG_SHIFT = "shift"
+        private const val ARG_MID_CODE = "midCode"
 
-    private fun fetchAssistant(generation: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val timeoutDuration = 10_000L
-            try {
-                val response: List<User>? = withTimeoutOrNull(timeoutDuration) {
-                    NetworkUtils.apiService
-                        .getAssistantByGeneration(
-                            generation = generation
-                        )
+        fun newInstance(date: String, day: String, shift: String, midCode: String) =
+            GenerationFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_DATE, date)
+                    putString(ARG_DAY, day)
+                    putString(ARG_SHIFT, shift)
+                    putString(ARG_MID_CODE, midCode)
                 }
-                if (response != null && response.isNotEmpty()) {
-                    withContext(Dispatchers.Main) {
-                        response.forEach {
-                            initials.add(it.Username)
-                        }
-                            println(initials)
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
-        }
     }
 
 

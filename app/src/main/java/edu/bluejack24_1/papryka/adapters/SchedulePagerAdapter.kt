@@ -44,12 +44,20 @@ class SchedulePagerAdapter(
 
     fun updateDate(newDate: String) {
         initialFragment?.updateDate(newDate)
-        generationFragment?.updateDate(newDate)
+        if (generationFragment == null) {
+            generationFragment = GenerationFragment.newInstance(newDate, day, shift, midCode)
+        } else {
+            generationFragment?.updateDate(newDate)
+        }
     }
 
     fun updateShift(newShift: String) {
         initialFragment?.updateShift(newShift)
-        generationFragment?.updateShift(newShift)
+        if (generationFragment == null) {
+            generationFragment = GenerationFragment.newInstance(date, day, newShift, midCode)
+        } else {
+            generationFragment?.updateShift(newShift)
+        }
     }
 
 }
