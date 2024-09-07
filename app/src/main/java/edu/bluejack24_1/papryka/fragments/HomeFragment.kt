@@ -33,7 +33,7 @@ class HomeFragment : Fragment() {
 
         setupTabLayout()
         observeViewModel()
-        fetchUserInformation()
+        homeViewModel.fetchUserInformation(getAccessToken())
 
         return vBinding.root
     }
@@ -54,13 +54,13 @@ class HomeFragment : Fragment() {
             homePagerAdapter.notifyDataSetChanged()
         }
 
-        userViewModel.initial.observe(viewLifecycleOwner) { initial ->
+        homeViewModel.userInitial.observe(viewLifecycleOwner) { initial ->
             vBinding.tvInitial.text = initial
             homeViewModel.fetchClassTransaction(initial, getAccessToken())
         }
 
-        userViewModel.nim.observe(viewLifecycleOwner) { nim ->
-            homeViewModel.fetchCollegeSchedule(nim, getAccessToken(), "today")
+        homeViewModel.nim.observe(viewLifecycleOwner) { nim ->
+            homeViewModel.fetchCollegeSchedule(nim, getAccessToken(), "weekly")
         }
 
         homeViewModel.errorMessage.observe(viewLifecycleOwner) { message ->

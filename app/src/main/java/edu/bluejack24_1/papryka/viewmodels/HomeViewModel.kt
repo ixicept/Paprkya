@@ -10,6 +10,7 @@ import edu.bluejack24_1.papryka.models.CollegeSchedule
 import edu.bluejack24_1.papryka.models.Schedule
 import edu.bluejack24_1.papryka.models.processCollegeSchedule
 import edu.bluejack24_1.papryka.utils.NetworkUtils
+import edu.bluejack24_1.papryka.utils.getDateRange
 import edu.bluejack24_1.papryka.utils.getShiftNumber
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,11 +19,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 
 class HomeViewModel : ViewModel() {
 
-    private lateinit var databaseReference: DatabaseReference
-
-    init {
-        databaseReference = FirebaseDatabase.getInstance().getReference("users")
-    }
+    private var databaseReference: DatabaseReference = FirebaseDatabase.getInstance().getReference("users")
 
     private val _userInitial = MutableLiveData<String>()
     val userInitial: LiveData<String> get() = _userInitial
@@ -83,28 +80,29 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    fun fetchCollegeSchedule(nim: String, accessToken: String, startDate: String, endDate: String) {
+    fun fetchCollegeSchedule(nim: String, accessToken: String, timeframe: String) {
         viewModelScope.launch(Dispatchers.IO) {
+            val (startDate, endDate) = getDateRange(timeframe)
+            val timeoutDuration = 20_000L
             try {
-                val timeoutDuration = 20_000L
-                val response: CollegeSchedule? = withTimeoutOrNull(timeoutDuration) {
+                val response = withTimeoutOrNull(timeoutDuration) {
                     NetworkUtils.apiService.getStudentSchedule(
-                        "Bearer $accessToken", nim, startDate, endDate
+                        "Bearer $accessToken",
+                        nim,
+                        startDate,
+                        endDate
                     )
                 }
 
-                withContext(Dispatchers.Main) {
-                    if (response == null || response.isEmpty()) {
-                        _errorMessage.value = "No college transactions found"
-                    } else {
-                        val updatedSchedules = processCollegeSchedule(response)
-                        _schedules.value = updatedSchedules
-                    }
+                if (response.isNullOrEmpty()) {
+                    _errorMessage.postValue("No college transactions found.")
+                } else {
+                    val currentList = _schedules.value?.toMutableList() ?: mutableListOf()
+                    currentList.addAll(processCollegeSchedule(response))
+                    _schedules.postValue(currentList)
                 }
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    _errorMessage.value = "Failed to get college transactions"
-                }
+                _errorMessage.postValue("Failed to get college transactions")
             }
         }
     }

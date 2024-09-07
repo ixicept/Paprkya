@@ -100,7 +100,7 @@ class ScheduleFragment : Fragment() {
             when (position) {
                 0 -> tab.text = getString(R.string.by_initial)
                 1 -> tab.text = getString(R.string.by_generation)
-                2 -> tab.text = getString(R.string.by_position)
+//                2 -> tab.text = getString(R.string.by_position)
             }
         }.attach()
 

@@ -22,7 +22,7 @@ class SchedulePagerAdapter(
     private var generationFragment: GenerationFragment? = null
 
     override fun getItemCount(): Int {
-        return 3
+        return 2
     }
 
     override fun createFragment(position: Int): Fragment {
@@ -35,7 +35,6 @@ class SchedulePagerAdapter(
                 generationFragment = GenerationFragment.newInstance(date, day, shift, midCode)
                 generationFragment!!
             }
-            2 -> PositionFragment()
 
             else -> InitialFragment.newInstance(date, day, shift, midCode)
 
