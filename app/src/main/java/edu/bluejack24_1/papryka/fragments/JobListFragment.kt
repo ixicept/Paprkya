@@ -46,6 +46,12 @@ class JobListFragment : Fragment() {
         observeViewModel()
         fetchJobData()
 
+        val swipeLayout = vBinding.pullToRefresh
+        swipeLayout.setOnRefreshListener {
+            fetchJobData()
+            swipeLayout.isRefreshing = false
+        }
+
         return vBinding.root
     }
 

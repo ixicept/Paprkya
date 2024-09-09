@@ -33,9 +33,18 @@ class HomeFragment : Fragment() {
         homePagerAdapter = HomePagerAdapter(requireActivity(), mutableListOf())
         vBinding.viewPager.adapter = homePagerAdapter
 
+        val accessToken = TokenManager.getAccessToken(requireActivity()) ?: ""
+
         setupTabLayout()
         observeViewModel()
-        homeViewModel.fetchUserInformation(TokenManager.getAccessToken(requireActivity())!!)
+        homeViewModel.fetchUserInformation(accessToken)
+
+        val refreshLayout = vBinding.pullToRefresh
+        refreshLayout.setOnRefreshListener {
+            homeViewModel.fetchClassTransaction(homeViewModel.userInitial.value!!, accessToken)
+            homeViewModel.fetchCollegeSchedule(homeViewModel.nim.value!!, accessToken, "weekly")
+            refreshLayout.isRefreshing = false
+        }
 
         return vBinding.root
     }
