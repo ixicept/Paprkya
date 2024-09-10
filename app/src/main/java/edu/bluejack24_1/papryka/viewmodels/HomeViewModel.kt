@@ -6,20 +6,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import edu.bluejack24_1.papryka.models.CollegeSchedule
 import edu.bluejack24_1.papryka.models.Schedule
-import edu.bluejack24_1.papryka.models.processCollegeSchedule
 import edu.bluejack24_1.papryka.utils.NetworkUtils
 import edu.bluejack24_1.papryka.utils.getDateRange
 import edu.bluejack24_1.papryka.utils.getShiftNumber
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class HomeViewModel : ViewModel() {
 
-    private var databaseReference: DatabaseReference = FirebaseDatabase.getInstance().getReference("users")
+    private var databaseReference: DatabaseReference =
+        FirebaseDatabase.getInstance().getReference("users")
 
     private val _userInitial = MutableLiveData<String>()
     val userInitial: LiveData<String> get() = _userInitial
@@ -39,6 +40,7 @@ class HomeViewModel : ViewModel() {
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
 
+
     fun fetchUserInformation(accessToken: String) {
         viewModelScope.launch(Dispatchers.IO) {
             startLoading()
@@ -46,7 +48,7 @@ class HomeViewModel : ViewModel() {
                 val response = NetworkUtils.apiService.getUserInfo("Bearer $accessToken")
                 withContext(Dispatchers.Main) {
                     _userInitial.value = response.Username
-                    _nim.value = response.BinusianNumber
+                    _nim.value = response.UserId
                     storeData(response.Username, response.Name)
                 }
             } catch (e: Exception) {
@@ -59,63 +61,76 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    fun fetchClassTransaction(username: String, accessToken: String) {
+    fun fetchAllSchedules(username: String, nim: String, accessToken: String) {
         viewModelScope.launch(Dispatchers.IO) {
             startLoading()
             try {
-                val timeoutDuration = 10_000L
-                val response: List<Schedule>? = withTimeoutOrNull(timeoutDuration) {
+                val teachingDeferred = async {
                     NetworkUtils.apiService.getClassTransactionByAssistantUsername(
                         "Bearer $accessToken", username
                     )
                 }
 
+                val collegeDeferred = async {
+                    val (startDate, endDate) = getDateRange("weekly")
+                    NetworkUtils.apiService.getCollegeSchedules(
+                        "Bearer $accessToken",
+                        nim,
+                        startDate = startDate,
+                        endDate = endDate
+                    )
+                }
+
+                val teachingResponse = teachingDeferred.await()
+                val collegeResponse = collegeDeferred.await()
+
+                val combinedSchedules = mutableListOf<Schedule>()
+
+                teachingResponse?.let {
+                    combinedSchedules.addAll(it.map { schedule ->
+                        schedule.Type = "Teaching"
+                        schedule.ShiftCode = getShiftNumber(schedule.Shift)
+                        schedule
+                    })
+                }
+
+                collegeResponse?.let {
+                    combinedSchedules.addAll(it.map { collegeSchedule ->
+                        val startTime = collegeSchedule.StartAt.split("T")[1].substring(0, 5)
+                        val endTime = collegeSchedule.EndAt.split("T")[1].substring(0, 5)
+                        val time = "$startTime - $endTime"
+
+                        val dateString = collegeSchedule.StartAt.split("T")[0]
+                        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                        val date = LocalDate.parse(dateString, formatter)
+
+                        val dayOfWeek = date.dayOfWeek.value
+                        val subject = "${collegeSchedule.CourseCode} - ${collegeSchedule.CourseTitle}"
+
+                        Schedule(
+                            subject,
+                            collegeSchedule.ClassName,
+                            dayOfWeek,
+                            0F,
+                            time,
+                            collegeSchedule.ClassName,
+                            "College",
+                            ""
+                        )
+                    })
+                }
+
                 withContext(Dispatchers.Main) {
-                    if (response.isNullOrEmpty()) {
-                        _errorMessage.value = "No teaching transactions found"
+                    if (combinedSchedules.isEmpty()) {
+                        _errorMessage.value = "No schedules found"
                     } else {
-                        val updatedSchedules = response.map {
-                            it.Type = "Teaching"
-                            it.ShiftCode = getShiftNumber(it.Shift)
-                            it
-                        }
-                        _schedules.value = updatedSchedules
+                        _schedules.value = combinedSchedules
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    _errorMessage.value = "Failed to get class transactions"
+                    _errorMessage.value = "Failed to get schedules"
                 }
-            } finally {
-                stopLoading()
-            }
-        }
-    }
-
-    fun fetchCollegeSchedule(nim: String, accessToken: String, timeframe: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            startLoading()
-            val (startDate, endDate) = getDateRange(timeframe)
-            val timeoutDuration = 20_000L
-            try {
-                val response = withTimeoutOrNull(timeoutDuration) {
-                    NetworkUtils.apiService.getStudentSchedule(
-                        "Bearer $accessToken",
-                        nim,
-                        startDate,
-                        endDate
-                    )
-                }
-
-                if (response.isNullOrEmpty()) {
-                    _errorMessage.postValue("No college transactions found.")
-                } else {
-                    val currentList = _schedules.value?.toMutableList() ?: mutableListOf()
-                    currentList.addAll(processCollegeSchedule(response))
-                    _schedules.postValue(currentList)
-                }
-            } catch (e: Exception) {
-                _errorMessage.postValue("Failed to get college transactions")
             } finally {
                 stopLoading()
             }

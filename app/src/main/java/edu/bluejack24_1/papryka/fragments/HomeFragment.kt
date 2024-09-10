@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.tabs.TabLayoutMediator
@@ -41,8 +40,11 @@ class HomeFragment : Fragment() {
 
         val refreshLayout = vBinding.pullToRefresh
         refreshLayout.setOnRefreshListener {
-            homeViewModel.fetchClassTransaction(homeViewModel.userInitial.value!!, accessToken)
-            homeViewModel.fetchCollegeSchedule(homeViewModel.nim.value!!, accessToken, "weekly")
+            homeViewModel.userInitial.value?.let { initial ->
+                homeViewModel.nim.value?.let { nim ->
+                    homeViewModel.fetchAllSchedules(initial, nim, accessToken)
+                }
+            }
             refreshLayout.isRefreshing = false
         }
 
@@ -69,17 +71,24 @@ class HomeFragment : Fragment() {
 
         homeViewModel.userInitial.observe(viewLifecycleOwner) { initial ->
             vBinding.tvInitial.text = initial
-            homeViewModel.fetchClassTransaction(initial, accessToken)
+            homeViewModel.nim.value?.let { nim ->
+                homeViewModel.fetchAllSchedules(initial, nim, accessToken)
+            }
         }
 
         homeViewModel.nim.observe(viewLifecycleOwner) { nim ->
-            homeViewModel.fetchCollegeSchedule(nim, accessToken, "weekly")
+            homeViewModel.userInitial.value?.let { initial ->
+                homeViewModel.fetchAllSchedules(initial, nim, accessToken)
+            }
         }
 
         homeViewModel.errorMessage.observe(viewLifecycleOwner) { message ->
             SnackBarUtils.showSnackBarWithAction(vBinding.root, message, "Retry") {
-                homeViewModel.fetchClassTransaction(homeViewModel.userInitial.value!!, accessToken)
-                homeViewModel.fetchCollegeSchedule(homeViewModel.nim.value!!, accessToken, "weekly")
+                homeViewModel.userInitial.value?.let { initial ->
+                    homeViewModel.nim.value?.let { nim ->
+                        homeViewModel.fetchAllSchedules(initial, nim, accessToken)
+                    }
+                }
             }
         }
 
