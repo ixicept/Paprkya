@@ -15,6 +15,7 @@ data class Schedule(
     var Type: String,
     val CourseOutlineId: String,
 ): Parcelable{
+
     init {
         ShiftCode = getShiftNumber(Shift)
     }

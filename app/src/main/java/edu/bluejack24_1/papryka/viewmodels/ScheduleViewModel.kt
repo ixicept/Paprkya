@@ -5,10 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import edu.bluejack24_1.papryka.models.AssistantSchedule
-import edu.bluejack24_1.papryka.models.CollegeSchedule
+import edu.bluejack24_1.papryka.models.CollegeDetail
 import edu.bluejack24_1.papryka.models.Schedule
 import edu.bluejack24_1.papryka.models.User
-import edu.bluejack24_1.papryka.models.processCollegeSchedule
 import edu.bluejack24_1.papryka.utils.NetworkUtils
 import edu.bluejack24_1.papryka.utils.getDayOfWeek
 import edu.bluejack24_1.papryka.utils.getShiftNumber
@@ -24,6 +23,9 @@ class ScheduleViewModel : ViewModel() {
 
     private val _initials = MutableLiveData<List<String>>()
     val initials: LiveData<List<String>> get() = _initials
+
+    private val _userId = MutableLiveData<List<String>>()
+    val userId: LiveData<List<String>> get() = _userId
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
@@ -46,19 +48,25 @@ class ScheduleViewModel : ViewModel() {
                     if (schedule != null) {
                         assistantSchedules.add(AssistantSchedule(initial, schedule))
                     } else {
-                        assistantSchedules.add(
-                            AssistantSchedule(
-                                initial,
-                                Schedule("Available", "", 0, 0F, "", "", "", "")
+                        val userId = fetchUserId(initial)
+                        val collegeSchedule = fetchCollegeSchedule(userId, accessToken, date, date, shift)
+                        if (collegeSchedule != null) {
+                            val subject = collegeSchedule.CourseCode + " - " + collegeSchedule.CourseTitle
+                            val shift = getShiftFromStartAt(collegeSchedule.StartAt, collegeSchedule.EndAt)
+                            assistantSchedules.add(
+                                AssistantSchedule(
+                                    initial,
+                                    Schedule(subject, collegeSchedule.ClassName, 0, shift, "", collegeSchedule.ClassName, "College", "")
+                                )
                             )
-                        )
-//                        val collegeSchedule = fetchCollegeSchedule(initial, accessToken)
-//                        if (collegeSchedule != null) {
-//                            assistantSchedules.add(AssistantSchedule(initial, collegeSchedule))
-//                        } else {
-//                            // Assume free schedule if no class or college schedule found
-//                            assistantSchedules.add(AssistantSchedule(initial, Schedule("Free", 0, 0)))
-//                        }
+                        } else {
+                            assistantSchedules.add(
+                                AssistantSchedule(
+                                    initial,
+                                    Schedule("Free", "", 0, 0F, "", "", "", "")
+                                )
+                            )
+                        }
                     }
                 }
             }
@@ -92,6 +100,7 @@ class ScheduleViewModel : ViewModel() {
                 println("Test generation: $generation")
                 if (!response.isNullOrEmpty()) {
                     _initials.postValue(response.map { it.Username })
+
                 } else {
                     _initials.postValue(emptyList())
                 }
@@ -101,15 +110,32 @@ class ScheduleViewModel : ViewModel() {
         }
     }
 
+    private suspend fun fetchUserId(initial: String): String {
+        return withContext(Dispatchers.IO) {
+            try {
+                val generation = initial.split("-").first()
+                val response = apiService.getAssistantByGeneration(initial, generation)
+                response.firstOrNull()?.UserId ?: ""
+            } catch (e: Exception) {
+                _error.postValue("Failed to fetch user ID")
+                ""
+            }
+        }
+    }
 
-    private suspend fun fetchClassTransaction(initial: String, date: String, shift: String, accessToken: String): Schedule? {
+
+    private suspend fun fetchClassTransaction(
+        initial: String,
+        date: String,
+        shift: String,
+        accessToken: String
+    ): Schedule? {
         return withContext(Dispatchers.IO) {
             try {
                 var response = apiService.getClassTransactionByAssistantUsername(
                     "Bearer $accessToken",
                     initial
                 )
-                println(response)
                 response.forEach {
                     it.Type = "Teaching"
                     it.ShiftCode = getShiftNumber(it.Shift)
@@ -128,15 +154,40 @@ class ScheduleViewModel : ViewModel() {
         }
     }
 
-//    private suspend fun fetchCollegeSchedule(initial: String, accessToken: String): Schedule? {
-//        return withContext(Dispatchers.IO) {
-//            try {
-//                val response = apiService.getStudentSchedule("Bearer $accessToken", initial, "startDate", "endDate")
-//                response?.let { processCollegeSchedule(it) } // Replace with actual logic to select the appropriate schedule
-//            } catch (e: Exception) {
-//                _error.postValue("Failed to fetch college schedule")
-//                null
-//            }
-//        }
-//    }
+    private suspend fun fetchCollegeSchedule(
+        userId: String,
+        accessToken: String,
+        startDate: String,
+        endDate: String,
+        shift: String
+    ): CollegeDetail? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = apiService.getCollegeSchedules(
+                    "Bearer $accessToken",
+                    userId,
+                    startDate = startDate,
+                    endDate = endDate
+                )
+                println("College schedule response: $response")
+                response.filter {
+                    val scheduleShift = getShiftFromStartAt(it.StartAt, it.EndAt)
+                    println("Schedule shift: $scheduleShift")
+                    scheduleShift.toInt() == shift.toInt()
+                }.firstOrNull()
+            } catch (e: Exception) {
+                _error.postValue("Failed to fetch college schedule")
+                null
+            }
+        }
+    }
+
+    fun getShiftFromStartAt(startAt: String,endAt: String): Float {
+        val startTime = startAt.split("T")[1].substring(0, 5)
+        val endTime = endAt.split("T")[1].substring(0, 5)
+        val time = startTime + " - " + endTime
+        println(time)
+        return getShiftNumber(time)
+    }
+
 }

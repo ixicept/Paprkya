@@ -1,6 +1,7 @@
 package edu.bluejack24_1.papryka.utils
 
 import edu.bluejack24_1.papryka.models.Casemaking
+import edu.bluejack24_1.papryka.models.CollegeDetail
 import edu.bluejack24_1.papryka.models.CollegeSchedule
 import edu.bluejack24_1.papryka.models.Correction
 import edu.bluejack24_1.papryka.models.LoginRequest
@@ -95,6 +96,16 @@ object NetworkUtils {
         suspend fun getAssistantRoles(
             @Query("username") username: String
         ): List<String>
+
+        @GET("Schedule/GetCollegeSchedules")
+        suspend fun getCollegeSchedules(
+            @Header("Authorization") token: String,
+            @Query("userId") userId: String = "9787412d-a0ae-ee11-ae31-d8d385fce79e",
+            @Query("semesterId") semesterId: String = "",
+            @Query("startDate") startDate: String = "2024-09-10",
+            @Query("endDate") endDate: String = "2024-09-14"
+        ): List<CollegeDetail>
+
     }
 
     val apiService: ApiService by lazy { retrofit.create(ApiService::class.java) }
