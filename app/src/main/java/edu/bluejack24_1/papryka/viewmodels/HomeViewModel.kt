@@ -13,6 +13,7 @@ import edu.bluejack24_1.papryka.utils.getShiftNumber
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -61,7 +62,54 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    fun fetchAllSchedules(username: String, nim: String, accessToken: String) {
+    fun checkSchedules(username: String, nim: String, accessToken: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            startLoading()
+            try {
+                val db = databaseReference.child(username).child("schedules").get().await()
+                println(db.value)
+                if (db.exists()) {
+                    val cachedDate = db.child("lastUpdated").value as? String
+                    val currentDate = LocalDate.now().toString()
+                    if (cachedDate == currentDate) {
+                        val cachedSchedules = db.child("schedules").children.map { data ->
+                            Schedule(
+                                Subject = data.child("subject").value as String,
+                                Class = data.child("class").value as String,
+                                Day = (data.child("day").value as Long).toInt(),
+                                ShiftCode = (data.child("shiftCode").value as Long).toFloat(),
+                                Shift = data.child("shift").value as String,
+                                Room = data.child("room").value as String,
+                                Type = data.child("type").value as String,
+                                CourseOutlineId = data.child("courseOutlineId").value as String
+                            )
+                        }
+                        withContext(Dispatchers.Main) {
+                            _schedules.value = cachedSchedules
+                            println("schedules from cache!")
+                            _successMessage.value = "Schedules fetched from cache"
+                        }
+                    } else {
+                        fetchAllSchedules(username, nim, accessToken)
+                        println("cache expired!")
+                    }
+                } else {
+                    fetchAllSchedules(username, nim, accessToken)
+                    println("no cache found!")
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    println("error fetching cache: ${e.message}")
+                    _errorMessage.value = "Failed to fetch or validate cache"
+                }
+            } finally {
+                stopLoading()
+            }
+        }
+    }
+
+
+    private fun fetchAllSchedules(username: String, nim: String, accessToken: String) {
         viewModelScope.launch(Dispatchers.IO) {
             startLoading()
             try {
@@ -105,7 +153,8 @@ class HomeViewModel : ViewModel() {
                         val date = LocalDate.parse(dateString, formatter)
 
                         val dayOfWeek = date.dayOfWeek.value
-                        val subject = "${collegeSchedule.CourseCode} - ${collegeSchedule.CourseTitle}"
+                        val subject =
+                            "${collegeSchedule.CourseCode} - ${collegeSchedule.CourseTitle}"
 
                         Schedule(
                             subject,
@@ -125,6 +174,8 @@ class HomeViewModel : ViewModel() {
                         _errorMessage.value = "No schedules found"
                     } else {
                         _schedules.value = combinedSchedules
+                        println("Schedules: $combinedSchedules")
+                        storeScheduleData(username, combinedSchedules)
                     }
                 }
             } catch (e: Exception) {
@@ -148,6 +199,28 @@ class HomeViewModel : ViewModel() {
         activeTasks--
         if (activeTasks == 0) {
             _isLoading.postValue(false)
+        }
+    }
+
+    private fun storeScheduleData(initial: String, schedules: List<Schedule>) {
+        val currentDate = LocalDate.now().toString()
+
+        val scheduleData = hashMapOf(
+            "schedules" to schedules,
+            "lastUpdated" to currentDate
+        )
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                databaseReference.child(initial).child("schedules").setValue(scheduleData)
+                withContext(Dispatchers.Main) {
+                    _successMessage.value = "Schedules stored successfully"
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    _errorMessage.value = "Failed to store schedules: ${e.message}"
+                }
+            }
         }
     }
 

@@ -42,7 +42,7 @@ class HomeFragment : Fragment() {
         refreshLayout.setOnRefreshListener {
             homeViewModel.userInitial.value?.let { initial ->
                 homeViewModel.nim.value?.let { nim ->
-                    homeViewModel.fetchAllSchedules(initial, nim, accessToken)
+                    homeViewModel.checkSchedules(initial, nim, accessToken)
                 }
             }
             refreshLayout.isRefreshing = false
@@ -72,13 +72,13 @@ class HomeFragment : Fragment() {
         homeViewModel.userInitial.observe(viewLifecycleOwner) { initial ->
             vBinding.tvInitial.text = initial
             homeViewModel.nim.value?.let { nim ->
-                homeViewModel.fetchAllSchedules(initial, nim, accessToken)
+                homeViewModel.checkSchedules(initial, nim, accessToken)
             }
         }
 
         homeViewModel.nim.observe(viewLifecycleOwner) { nim ->
             homeViewModel.userInitial.value?.let { initial ->
-                homeViewModel.fetchAllSchedules(initial, nim, accessToken)
+                homeViewModel.checkSchedules(initial, nim, accessToken)
             }
         }
 
@@ -86,7 +86,7 @@ class HomeFragment : Fragment() {
             SnackBarUtils.showSnackBarWithAction(vBinding.root, message, "Retry") {
                 homeViewModel.userInitial.value?.let { initial ->
                     homeViewModel.nim.value?.let { nim ->
-                        homeViewModel.fetchAllSchedules(initial, nim, accessToken)
+                        homeViewModel.checkSchedules(initial, nim, accessToken)
                     }
                 }
             }
