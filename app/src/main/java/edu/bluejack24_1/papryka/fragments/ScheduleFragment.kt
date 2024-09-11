@@ -28,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import java.util.Date
 import java.util.Locale
 
 class ScheduleFragment : Fragment() {
@@ -49,28 +50,6 @@ class ScheduleFragment : Fragment() {
         tabLayout = vBinding.tabLayout
         viewPager = vBinding.viewPager
 
-//        val daySpinner = vBinding.spDay
-//
-//        ArrayAdapter.createFromResource(
-//            requireContext(),
-//            R.array.days,
-//            android.R.layout.simple_spinner_item
-//        ).also { adapter ->
-//            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//            daySpinner.adapter = adapter
-//        }
-//
-//        val midCodeSpinner = vBinding.spMidCode
-//
-//        ArrayAdapter.createFromResource(
-//            requireContext(),
-//            R.array.mid_codes,
-//            android.R.layout.simple_spinner_item
-//        ).also { adapter ->
-//            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//            midCodeSpinner.adapter = adapter
-//        }
-
         val shiftSpinner = vBinding.spShift
 
         ArrayAdapter.createFromResource(
@@ -88,19 +67,21 @@ class ScheduleFragment : Fragment() {
 
         dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         etDate = vBinding.etDate
+        etDate.text = dateFormatter.format(Date())
         etDate.setOnClickListener { showDateDialog(requireContext(), etDate, dateFormatter) }
 
         jobListPagerAdapter = SchedulePagerAdapter(
             requireActivity(),
             etDate.text.toString(), selectedDay, selectedShift, selectedMidCode
         )
+        jobListPagerAdapter.initFragments()
         viewPager.adapter = jobListPagerAdapter
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             when (position) {
                 0 -> tab.text = getString(R.string.by_initial)
                 1 -> tab.text = getString(R.string.by_generation)
-//                2 -> tab.text = getString(R.string.by_position)
+                2 -> tab.text = getString(R.string.by_position)
             }
         }.attach()
 

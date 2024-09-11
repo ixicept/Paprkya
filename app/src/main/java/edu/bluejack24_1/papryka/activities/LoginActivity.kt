@@ -82,5 +82,11 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
             }
         }
+
+        userViewModel.successMessage.observe(this) { message ->
+            message?.let {
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }

@@ -6,27 +6,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import edu.bluejack24_1.papryka.R
 import edu.bluejack24_1.papryka.activities.MainActivity
 import edu.bluejack24_1.papryka.adapters.AssistantScheduleAdapter
 import edu.bluejack24_1.papryka.databinding.FragmentGenerationBinding
-import edu.bluejack24_1.papryka.databinding.FragmentInitialBinding
-import edu.bluejack24_1.papryka.models.User
-import edu.bluejack24_1.papryka.utils.NetworkUtils
 import edu.bluejack24_1.papryka.utils.SnackBarUtils
 import edu.bluejack24_1.papryka.utils.TokenManager.getAccessToken
 import edu.bluejack24_1.papryka.viewmodels.ScheduleViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 
 class GenerationFragment : Fragment() {
 
@@ -70,7 +59,7 @@ class GenerationFragment : Fragment() {
         generationSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedGeneration = generationSpinner.selectedItem.toString()
-                scheduleViewModel.fetchInitials(selectedGeneration)
+                scheduleViewModel.fetchInitialsByGeneration(selectedGeneration)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {

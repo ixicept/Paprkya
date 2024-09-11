@@ -76,7 +76,6 @@ object NetworkUtils {
 
         @GET("Assistant/GetUserWithRoles")
         suspend fun getAssistantByRole(
-            @Header("Authorization") token: String,
             @Query("role") role: String = "Software Teaching Assistant" //ini default value
         ): List<User>
 

@@ -42,6 +42,7 @@ class HomeFragment : Fragment() {
         refreshLayout.setOnRefreshListener {
             homeViewModel.userInitial.value?.let { initial ->
                 homeViewModel.nim.value?.let { nim ->
+                    homeViewModel.fetchUserInformation(accessToken)
                     homeViewModel.checkSchedules(initial, nim, accessToken)
                 }
             }

@@ -12,51 +12,47 @@ import edu.bluejack24_1.papryka.models.Schedule
 
 class SchedulePagerAdapter(
     fa: FragmentActivity,
-    private val date: String,
-    private val day: String,
-    private val shift: String,
-    private val midCode: String
+    private var date: String,
+    private var day: String,
+    private var shift: String,
+    private var midCode: String
 ) : FragmentStateAdapter(fa) {
 
-    private var initialFragment: InitialFragment? = null
-    private var generationFragment: GenerationFragment? = null
+    private lateinit var initialFragment: InitialFragment
+    private lateinit var generationFragment: GenerationFragment
+    private lateinit var positionFragment: PositionFragment
+
+    fun initFragments() {
+        initialFragment = InitialFragment.newInstance(date, day, shift, midCode)
+        generationFragment = GenerationFragment.newInstance(date, day, shift, midCode)
+        positionFragment = PositionFragment.newInstance(date, day, shift, midCode)
+    }
 
     override fun getItemCount(): Int {
-        return 2
+        return 3
     }
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> {
-                initialFragment = InitialFragment.newInstance(date, day, shift, midCode)
-                initialFragment!!
-            }
-            1 -> {
-                generationFragment = GenerationFragment.newInstance(date, day, shift, midCode)
-                generationFragment!!
-            }
+            0 -> initialFragment
+            1 -> generationFragment
+            2 -> positionFragment
 
-            else -> InitialFragment.newInstance(date, day, shift, midCode)
+            else -> initialFragment
 
         }
     }
 
     fun updateDate(newDate: String) {
-        initialFragment?.updateDate(newDate)
-        if (generationFragment == null) {
-            generationFragment = GenerationFragment.newInstance(newDate, day, shift, midCode)
-        } else {
-            generationFragment?.updateDate(newDate)
-        }
+        initialFragment.updateDate(newDate)
+        generationFragment.updateDate(newDate)
+        positionFragment.updateDate(newDate)
     }
 
     fun updateShift(newShift: String) {
-        initialFragment?.updateShift(newShift)
-        if (generationFragment == null) {
-            generationFragment = GenerationFragment.newInstance(date, day, newShift, midCode)
-        } else {
-            generationFragment?.updateShift(newShift)
-        }
+        initialFragment.updateShift(newShift)
+        generationFragment.updateShift(newShift)
+        positionFragment.updateShift(newShift)
     }
 
 }

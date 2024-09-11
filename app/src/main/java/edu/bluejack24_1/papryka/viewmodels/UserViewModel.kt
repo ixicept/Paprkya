@@ -40,6 +40,9 @@ class UserViewModel : ViewModel() {
     private val _biometricError = MutableLiveData<String?>()
     val biometricError: LiveData<String?> get() = _biometricError
 
+    private val _successMessage = MutableLiveData<String>()
+    val successMessage: LiveData<String> get() = _successMessage
+
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
 
@@ -50,6 +53,7 @@ class UserViewModel : ViewModel() {
                 val response = NetworkUtils.apiService.login(loginRequest)
                 val accessToken = response.access_token
                 _accessToken.postValue(accessToken)
+                _successMessage.postValue("Login successful")
             } catch (e: Exception) {
                 _loginError.postValue("Wrong credentials")
             }

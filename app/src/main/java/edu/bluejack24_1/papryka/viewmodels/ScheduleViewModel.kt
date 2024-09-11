@@ -89,7 +89,7 @@ class ScheduleViewModel : ViewModel() {
         }
     }
 
-    fun fetchInitials(generation: String) {
+    fun fetchInitialsByGeneration(generation: String) {
         viewModelScope.launch {
             val timeoutDuration = 10_000L
             try {
@@ -98,6 +98,27 @@ class ScheduleViewModel : ViewModel() {
                 }
                 println("Test response: $response")
                 println("Test generation: $generation")
+                if (!response.isNullOrEmpty()) {
+                    _initials.postValue(response.map { it.Username })
+
+                } else {
+                    _initials.postValue(emptyList())
+                }
+            } catch (e: Exception) {
+                _error.postValue("Failed to fetch assistant initials")
+            }
+        }
+    }
+
+    fun fetchInitialsByPosition(position: String) {
+        viewModelScope.launch {
+            val timeoutDuration = 10_000L
+            try {
+                val response: List<User>? = withTimeoutOrNull(timeoutDuration) {
+                    NetworkUtils.apiService.getAssistantByRole(position)
+                }
+                println("Test response: $response")
+                println("Test generation: $position")
                 if (!response.isNullOrEmpty()) {
                     _initials.postValue(response.map { it.Username })
 
