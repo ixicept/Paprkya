@@ -50,7 +50,7 @@ class HomeViewModel : ViewModel() {
                 withContext(Dispatchers.Main) {
                     _userInitial.value = response.Username
                     _nim.value = response.UserId
-                    storeData(response.Username, response.Name)
+//                    storeData(response.Username, response.Name)
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
