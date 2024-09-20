@@ -41,7 +41,8 @@ class ScheduleViewModel : ViewModel() {
             val assistantSchedules = mutableListOf<AssistantSchedule>()
             println("Load schedules: $initials, $date, $shift, $accessToken")
 
-            for (initial in initials) {
+            val initialCopy = initials.toList()
+            for (initial in initialCopy) {
                 val isValid = checkInitial(initial)
                 if (isValid) {
                     val schedule = fetchClassTransaction(initial, date, shift, accessToken)
@@ -71,10 +72,11 @@ class ScheduleViewModel : ViewModel() {
                 }
             }
 
-            _assistantSchedules.value = assistantSchedules
+            _assistantSchedules.postValue(assistantSchedules)
             _isLoading.postValue(false)
         }
     }
+
 
     private suspend fun checkInitial(initial: String): Boolean {
         println("Check initial: $initial")

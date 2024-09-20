@@ -38,6 +38,12 @@ class CasemakingFragment : Fragment() {
         vBinding.rvCasemaking.layoutManager = LinearLayoutManager(context)
         vBinding.rvCasemaking.setHasFixedSize(true)
 
+        if (casemakingList.isEmpty()) {
+            vBinding.tvNoData.visibility = View.VISIBLE
+        } else {
+            vBinding.tvNoData.visibility = View.GONE
+        }
+
         return vBinding.root
     }
 

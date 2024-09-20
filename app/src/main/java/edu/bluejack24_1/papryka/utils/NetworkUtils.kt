@@ -64,14 +64,14 @@ object NetworkUtils {
         @GET("Correction/GetCorrectionSchedules")
         suspend fun getCorrectionSchedules(
             @Header("Authorization") token: String,
-            @Query("semesterId") semesterId: String = "a7ff28f1-bd85-410b-b222-a29c619068fa" //EVEN 2023/2024
+            @Query("semesterId") semesterId: String = "be992b30-4b38-4361-8404-25f2d6912754" //EVEN 2023/2024
         ): List<Correction>
 
         @GET("Schedule/GetJobsAssistant")
         suspend fun getJobsAssistant(
             @Header("Authorization") token: String,
             @Query("mode") mode: String = "history", //future atau history atau current
-            @Query("semesterId") semesterId: String = "f6e478f5-428c-4eb2-9aa5-6036488f24b3" //EVEN 2023/2024
+            @Query("semesterId") semesterId: String = "be992b30-4b38-4361-8404-25f2d6912754" //EVEN 2023/2024
             ): List<Casemaking>
 
         @GET("Assistant/GetUserWithRoles")

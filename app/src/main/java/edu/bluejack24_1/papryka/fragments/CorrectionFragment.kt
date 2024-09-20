@@ -36,6 +36,12 @@ class CorrectionFragment : Fragment() {
         vBinding.rvCorrection.layoutManager = LinearLayoutManager(context)
         vBinding.rvCorrection.setHasFixedSize(true)
 
+        if (corrections.isEmpty()) {
+            vBinding.tvNoData.visibility = View.VISIBLE
+        } else {
+            vBinding.tvNoData.visibility = View.GONE
+        }
+
         return vBinding.root
     }
 
